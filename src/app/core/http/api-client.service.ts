@@ -1,31 +1,120 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import {
+  HttpClient,
+  HttpParams,
+  HttpHeaders
+} from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_CONFIG } from './api.config';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiClientService {
 
-  constructor(private http: HttpClient) { }
+  private readonly http = inject(HttpClient);
 
-  get<T>(url: string): Observable<T> {
-    return this.http.get<T>(url);
+  private readonly baseUrl = API_CONFIG.baseUrl;
+
+  get<T>(
+    endpoint: string,
+    params?: Record<string, string | number | boolean>
+  ): Observable<T> {
+    return this.http.get<T>(
+      this.buildUrl(endpoint),
+      {
+        params: this.buildParams(params)
+      }
+    );
   }
 
-  post<T>(url: string, body: unknown): Observable<T> {
-    return this.http.post<T>(url, body);
+  post<T>(
+    endpoint: string,
+    body?: unknown,
+    options?: {
+      headers?: HttpHeaders;
+      params?: Record<string, string | number | boolean>;
+    }
+  ): Observable<T> {
+    return this.http.post<T>(
+      this.buildUrl(endpoint),
+      body,
+      {
+        headers: options?.headers,
+        params: this.buildParams(options?.params)
+      }
+    );
   }
 
-  put<T>(url: string, body: unknown): Observable<T> {
-    return this.http.put<T>(url, body);
+  put<T>(
+    endpoint: string,
+    body?: unknown,
+    options?: {
+      headers?: HttpHeaders;
+      params?: Record<string, string | number | boolean>;
+    }
+  ): Observable<T> {
+    return this.http.put<T>(
+      this.buildUrl(endpoint),
+      body,
+      {
+        headers: options?.headers,
+        params: this.buildParams(options?.params)
+      }
+    );
   }
 
-  patch<T>(url: string, body: unknown): Observable<T> {
-    return this.http.patch<T>(url, body);
+  patch<T>(
+    endpoint: string,
+    body?: unknown,
+    options?: {
+      headers?: HttpHeaders;
+      params?: Record<string, string | number | boolean>;
+    }
+  ): Observable<T> {
+    return this.http.patch<T>(
+      this.buildUrl(endpoint),
+      body,
+      {
+        headers: options?.headers,
+        params: this.buildParams(options?.params)
+      }
+    );
   }
 
-  delete<T>(url: string): Observable<T> {
-    return this.http.delete<T>(url);
+  delete<T>(
+    endpoint: string,
+    params?: Record<string, string | number | boolean>
+  ): Observable<T> {
+    return this.http.delete<T>(
+      this.buildUrl(endpoint),
+      {
+        params: this.buildParams(params)
+      }
+    );
+  }
+
+  private buildUrl(endpoint: string): string {
+    const normalizedBaseUrl = this.baseUrl.replace(/\/$/, '');
+    const normalizedEndpoint = endpoint.replace(/^\//, '');
+
+    return `${normalizedBaseUrl}/${normalizedEndpoint}`;
+  }
+
+  private buildParams(
+    params?: Record<string, string | number | boolean>
+  ): HttpParams {
+    let httpParams = new HttpParams();
+
+    if (!params) {
+      return httpParams;
+    }
+
+    Object.entries(params).forEach(([key, value]) => {
+      httpParams = httpParams.set(key, String(value));
+    });
+
+    return httpParams;
   }
 }
