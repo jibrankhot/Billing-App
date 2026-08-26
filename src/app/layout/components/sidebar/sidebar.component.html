@@ -1,1 +1,82 @@
-<p>sidebar works!</p>
+<aside class="sidebar">
+
+    <div class="sidebar-header">
+        <div class="brand">
+            <span class="brand-mark">S</span>
+
+            <span class="brand-name">
+                Stockly
+            </span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+
+        @for (item of navigationItems; track item.label) {
+
+        @if (hasChildren(item)) {
+
+        <div class="nav-group">
+
+            <button type="button" class="nav-item nav-parent" [class.expanded]="isMenuExpanded(item.label)"
+                (click)="toggleMenu(item.label)">
+                <span class="nav-icon">
+                    {{ item.icon }}
+                </span>
+
+                <span class="nav-label">
+                    {{ item.label }}
+                </span>
+
+                <span class="nav-arrow">
+                    {{ isMenuExpanded(item.label) ? '−' : '+' }}
+                </span>
+            </button>
+
+            @if (isMenuExpanded(item.label)) {
+
+            <div class="submenu">
+
+                @for (
+                child of item.children;
+                track child.label
+                ) {
+
+                <a class="nav-item submenu-item" [routerLink]="child.route" routerLinkActive="active">
+                    <span class="nav-icon">
+                        {{ child.icon }}
+                    </span>
+
+                    <span class="nav-label">
+                        {{ child.label }}
+                    </span>
+                </a>
+
+                }
+
+            </div>
+
+            }
+
+        </div>
+
+        } @else {
+
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }">
+            <span class="nav-icon">
+                {{ item.icon }}
+            </span>
+
+            <span class="nav-label">
+                {{ item.label }}
+            </span>
+        </a>
+
+        }
+
+        }
+
+    </nav>
+
+</aside>
