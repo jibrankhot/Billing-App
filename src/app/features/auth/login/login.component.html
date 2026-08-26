@@ -1,0 +1,83 @@
+<div class="login-page">
+    <div class="login-card">
+
+        <div class="login-header">
+            <div class="logo">
+                <span class="logo-mark">S</span>
+            </div>
+
+            <h1>Welcome to Stockly</h1>
+
+            <p>
+                Sign in to manage your inventory and billing.
+            </p>
+        </div>
+
+        @if (errorMessage) {
+        <div class="error-message">
+            {{ errorMessage }}
+        </div>
+        }
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+
+            <div class="form-group">
+                <label for="username">
+                    Username
+                </label>
+
+                <input id="username" type="text" formControlName="username" placeholder="Enter your username"
+                    autocomplete="username" />
+
+                @if (
+                loginForm.controls.username.touched &&
+                loginForm.controls.username.invalid
+                ) {
+                <span class="field-error">
+                    Username is required.
+                </span>
+                }
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    Password
+                </label>
+
+                <input id="password" type="password" formControlName="password" placeholder="Enter your password"
+                    autocomplete="current-password" />
+
+                @if (
+                loginForm.controls.password.touched &&
+                loginForm.controls.password.invalid
+                ) {
+                <span class="field-error">
+                    Password must be at least 6 characters.
+                </span>
+                }
+            </div>
+
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" formControlName="rememberMe" />
+
+                    <span>Remember me</span>
+                </label>
+
+                <button type="button" class="forgot-password" (click)="goToForgotPassword()">
+                    Forgot password?
+                </button>
+            </div>
+
+            <button type="submit" class="login-button" [disabled]="isSubmitting">
+                @if (isSubmitting) {
+                <span>Signing in...</span>
+                } @else {
+                <span>Sign in</span>
+                }
+            </button>
+
+        </form>
+
+    </div>
+</div>
