@@ -1,1 +1,245 @@
-<p>dashboard works!</p>
+<div class="dashboard">
+
+    <!-- Page Header -->
+    <div class="page-header">
+
+        <div>
+            <h1>Dashboard</h1>
+            <p>Overview of your business activity</p>
+        </div>
+
+        <div class="header-date">
+            27 Aug 2026
+        </div>
+
+    </div>
+
+    <!-- Statistics -->
+    <section class="stats-grid">
+
+        @for (stat of stats; track stat.title) {
+
+        <article class="stat-card">
+
+            <div class="stat-card-header">
+
+                <div class="stat-icon">
+                    {{ stat.icon }}
+                </div>
+
+            </div>
+
+            <div class="stat-content">
+
+                <span class="stat-title">
+                    {{ stat.title }}
+                </span>
+
+                <strong class="stat-value">
+                    {{ stat.value }}
+                </strong>
+
+                <span class="stat-description">
+                    {{ stat.description }}
+                </span>
+
+            </div>
+
+        </article>
+
+        }
+
+    </section>
+
+    <!-- Main Dashboard Content -->
+    <section class="dashboard-grid">
+
+        <!-- Recent Invoices -->
+        <article class="dashboard-card invoices-card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Recent Invoices</h2>
+                    <p>Latest sales invoices</p>
+                </div>
+
+                <a routerLink="/sales/invoices" class="view-all">
+                    View all
+                </a>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Invoice</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @for (
+                        invoice of recentInvoices;
+                        track invoice.invoiceNumber
+                        ) {
+
+                        <tr>
+
+                            <td class="invoice-number">
+                                {{ invoice.invoiceNumber }}
+                            </td>
+
+                            <td>
+                                {{ invoice.customerName }}
+                            </td>
+
+                            <td class="amount">
+                                ₹{{ invoice.amount | number:'1.0-0' }}
+                            </td>
+
+                            <td>
+                                <span class="status-badge" [class]="getStatusClass(invoice.status)">
+                                    {{ invoice.status }}
+                                </span>
+                            </td>
+
+                            <td class="date">
+                                {{ invoice.date }}
+                            </td>
+
+                        </tr>
+
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </article>
+
+        <!-- Low Stock -->
+        <article class="dashboard-card stock-card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Low Stock</h2>
+                    <p>Products that need attention</p>
+                </div>
+
+                <a routerLink="/inventory/low-stock" class="view-all">
+                    View all
+                </a>
+
+            </div>
+
+            <div class="stock-list">
+
+                @for (
+                product of lowStockProducts;
+                track product.sku
+                ) {
+
+                <div class="stock-item">
+
+                    <div class="stock-item-header">
+
+                        <div>
+                            <strong>
+                                {{ product.name }}
+                            </strong>
+
+                            <span>
+                                SKU: {{ product.sku }}
+                            </span>
+                        </div>
+
+                        <span class="stock-count">
+                            {{ product.currentStock }}
+                            /
+                            {{ product.minimumStock }}
+                        </span>
+
+                    </div>
+
+                    <div class="stock-bar">
+
+                        <div class="stock-progress" [style.width.%]="getStockPercentage(product)"></div>
+
+                    </div>
+
+                </div>
+
+                }
+
+            </div>
+
+        </article>
+
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions-card">
+
+        <div class="card-header">
+
+            <div>
+                <h2>Quick Actions</h2>
+                <p>Common tasks</p>
+            </div>
+
+        </div>
+
+        <div class="quick-actions">
+
+            <a routerLink="/sales/invoices/create" class="quick-action">
+                <span class="quick-action-icon">+</span>
+
+                <span>
+                    <strong>Create Invoice</strong>
+                    <small>Create a new sales invoice</small>
+                </span>
+            </a>
+
+            <a routerLink="/products/create" class="quick-action">
+                <span class="quick-action-icon">+</span>
+
+                <span>
+                    <strong>Add Product</strong>
+                    <small>Add a product to inventory</small>
+                </span>
+            </a>
+
+            <a routerLink="/customers/create" class="quick-action">
+                <span class="quick-action-icon">+</span>
+
+                <span>
+                    <strong>Add Customer</strong>
+                    <small>Create a new customer</small>
+                </span>
+            </a>
+
+            <a routerLink="/purchases/orders/create" class="quick-action">
+                <span class="quick-action-icon">+</span>
+
+                <span>
+                    <strong>Purchase Order</strong>
+                    <small>Create a purchase order</small>
+                </span>
+            </a>
+
+        </div>
+
+    </section>
+
+</div>
