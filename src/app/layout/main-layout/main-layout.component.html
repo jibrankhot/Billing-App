@@ -1,10 +1,9 @@
 <div class="main-layout" [class.sidebar-collapsed]="!isSidebarOpen">
-
     <app-navbar (menuToggle)="toggleSidebar()" />
 
     <div class="layout-body">
 
-        <app-sidebar />
+        <app-sidebar [isOpen]="isSidebarOpen" />
 
         <main class="main-content">
 
@@ -17,5 +16,4 @@
         </main>
 
     </div>
-
 </div>

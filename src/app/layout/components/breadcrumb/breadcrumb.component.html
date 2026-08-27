@@ -1,1 +1,31 @@
-<p>breadcrumb works!</p>
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a class="breadcrumb-item breadcrumb-home" routerLink="/dashboard">
+        Home
+    </a>
+
+    @for (
+    breadcrumb of breadcrumbs;
+    track breadcrumb.url;
+    let last = $last
+    ) {
+
+    <span class="breadcrumb-separator">
+        /
+    </span>
+
+    @if (last) {
+
+    <span class="breadcrumb-item current">
+        {{ breadcrumb.label }}
+    </span>
+
+    } @else {
+
+    <a class="breadcrumb-item" [routerLink]="breadcrumb.url">
+        {{ breadcrumb.label }}
+    </a>
+
+    }
+
+    }
+</nav>

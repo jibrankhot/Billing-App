@@ -1,1 +1,62 @@
-<p>user-menu works!</p>
+<div class="user-menu">
+
+    <button type="button" class="user-button" aria-label="Open user menu" [attr.aria-expanded]="isMenuOpen"
+        (click)="toggleMenu()">
+        <span class="avatar">
+            {{ initials }}
+        </span>
+
+        <span class="user-info">
+            <span class="user-name">
+                {{ displayName }}
+            </span>
+
+            <span class="user-role">
+                {{ currentUser?.roles?.[0] || 'User' }}
+            </span>
+        </span>
+
+        <span class="dropdown-arrow" [class.open]="isMenuOpen">
+            ▾
+        </span>
+    </button>
+
+    @if (isMenuOpen) {
+
+    <div class="user-dropdown">
+
+        <div class="dropdown-header">
+            <span class="dropdown-avatar">
+                {{ initials }}
+            </span>
+
+            <div class="dropdown-user-info">
+                <strong>
+                    {{ displayName }}
+                </strong>
+
+                <span>
+                    {{ currentUser?.email || 'No email available' }}
+                </span>
+            </div>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <button type="button" class="dropdown-item" (click)="goToProfile()">
+            <span class="item-icon">◉</span>
+            <span>Company Profile</span>
+        </button>
+
+        <div class="dropdown-divider"></div>
+
+        <button type="button" class="dropdown-item logout-item" (click)="logout()">
+            <span class="item-icon">↪</span>
+            <span>Logout</span>
+        </button>
+
+    </div>
+
+    }
+
+</div>

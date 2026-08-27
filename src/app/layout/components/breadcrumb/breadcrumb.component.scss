@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 24px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.breadcrumb-item {
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: #111827;
+  }
+}
+
+.breadcrumb-home {
+  color: #6b7280;
+}
+
+.breadcrumb-separator {
+  color: #9ca3af;
+}
+
+.breadcrumb-item.current {
+  color: #111827;
+  font-weight: 600;
+}

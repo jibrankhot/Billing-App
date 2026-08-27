@@ -17,7 +17,7 @@ export class AuthService {
   private readonly currentUserKey = 'stockly_current_user';
 
   private readonly currentUserSubject =
-    new BehaviorSubject<AuthUser | null>(this.getStoredUser());
+    new BehaviorSubject<AuthUser | null>(null);
 
   readonly currentUser$ = this.currentUserSubject.asObservable();
 
@@ -25,7 +25,9 @@ export class AuthService {
     private readonly apiClient: ApiClientService,
     private readonly tokenService: TokenService,
     private readonly storageService: StorageService
-  ) { }
+  ) {
+    this.loadStoredUser();
+  }
 
   login(request: LoginRequest): Observable<LoginResponse> {
     return this.apiClient
@@ -90,11 +92,22 @@ export class AuthService {
   }
 
   private setCurrentUser(user: AuthUser): void {
-    this.storageService.setItem(this.currentUserKey, user);
+    this.storageService.setItem(
+      this.currentUserKey,
+      user
+    );
+
     this.currentUserSubject.next(user);
   }
 
-  private getStoredUser(): AuthUser | null {
-    return this.storageService.getItem<AuthUser>(this.currentUserKey);
+  private loadStoredUser(): void {
+    const storedUser =
+      this.storageService.getItem<AuthUser>(
+        this.currentUserKey
+      );
+
+    if (storedUser) {
+      this.currentUserSubject.next(storedUser);
+    }
   }
 }

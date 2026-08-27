@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 interface NavigationItem {
@@ -19,6 +19,9 @@ interface NavigationItem {
   styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent {
+
+  @Input()
+  isOpen = true;
 
   expandedMenus = new Set<string>();
 
