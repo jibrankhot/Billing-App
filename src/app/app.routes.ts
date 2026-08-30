@@ -106,6 +106,59 @@ export const routes: Routes = [
                     }
 
                 ]
+            },
+
+            // Categories
+            {
+                path: 'categories',
+                canActivate: [authGuard],
+                children: [
+
+                    // /categories
+                    {
+                        path: '',
+                        loadComponent: () =>
+                            import(
+                                './features/categories/pages/category-list/category-list.component'
+                            ).then(
+                                m => m.CategoryListComponent
+                            )
+                    },
+
+                    // /categories/create
+                    {
+                        path: 'create',
+                        loadComponent: () =>
+                            import(
+                                './features/categories/pages/category-create/category-create.component'
+                            ).then(
+                                m => m.CategoryCreateComponent
+                            )
+                    },
+
+                    // /categories/:id/edit
+                    {
+                        path: ':id/edit',
+                        loadComponent: () =>
+                            import(
+                                './features/categories/pages/category-edit/category-edit.component'
+                            ).then(
+                                m => m.CategoryEditComponent
+                            )
+                    },
+
+                    // /categories/:id
+                    {
+                        path: ':id',
+                        loadComponent: () =>
+                            import(
+                                './features/categories/pages/category-details/category-details.component'
+                            ).then(
+                                m => m.CategoryDetailsComponent
+                            )
+                    }
+
+                ]
             }
 
         ]

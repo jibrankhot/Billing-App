@@ -1,0 +1,258 @@
+<div class="category-list-page">
+
+    <!-- Page Header -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>Categories</h1>
+
+            <p>
+                Organize your products into categories.
+            </p>
+
+        </div>
+
+        <a routerLink="/categories/create" class="btn btn-primary">
+            <span class="btn-icon">+</span>
+            Add Category
+        </a>
+
+    </div>
+
+
+    <!-- Filters -->
+
+    <section class="filter-card">
+
+        <div class="search-field">
+
+            <span class="search-icon">
+                ⌕
+            </span>
+
+            <input type="search" placeholder="Search categories..." [(ngModel)]="searchTerm" />
+
+        </div>
+
+        <select [(ngModel)]="selectedStatus" aria-label="Filter by status">
+            <option value="all">
+                All Status
+            </option>
+
+            <option value="active">
+                Active
+            </option>
+
+            <option value="inactive">
+                Inactive
+            </option>
+        </select>
+
+        <button type="button" class="clear-button" (click)="clearFilters()">
+            Clear
+        </button>
+
+    </section>
+
+
+    <!-- Category Table -->
+
+    <section class="table-card">
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>
+                    Category List
+                </h2>
+
+                <span>
+                    {{ filteredCategories.length }} category(s)
+                </span>
+
+            </div>
+
+        </div>
+
+
+        @if (filteredCategories.length > 0) {
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Category
+                        </th>
+
+                        <th>
+                            Description
+                        </th>
+
+                        <th>
+                            Products
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Created
+                        </th>
+
+                        <th class="actions-column">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @for (
+                    category of filteredCategories;
+                    track category.id
+                    ) {
+
+                    <tr>
+
+                        <!-- Category -->
+
+                        <td>
+
+                            <div class="category-cell">
+
+                                <span class="category-avatar">
+                                    {{ category.name.charAt(0).toUpperCase() }}
+                                </span>
+
+                                <div class="category-info">
+
+                                    <strong>
+                                        {{ category.name }}
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- Description -->
+
+                        <td>
+
+                            <span class="description">
+                                {{ category.description || 'No description' }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- Product Count -->
+
+                        <td>
+
+                            <span class="product-count">
+                                {{ category.productCount }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- Status -->
+
+                        <td>
+
+                            <span class="status-badge" [class.active]="category.isActive"
+                                [class.inactive]="!category.isActive">
+                                {{ category.isActive ? 'Active' : 'Inactive' }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- Created -->
+
+                        <td>
+
+                            <span class="created-date">
+                                {{ category.createdAt | date:'dd MMM yyyy' }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- Actions -->
+
+                        <td>
+
+                            <div class="actions">
+
+                                <button type="button" class="action-button" (click)="viewCategory(category)">
+                                    View
+                                </button>
+
+                                <button type="button" class="action-button" (click)="editCategory(category)">
+                                    Edit
+                                </button>
+
+                                <button type="button" class="action-button delete-action"
+                                    (click)="deleteCategory(category)">
+                                    Delete
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        } @else {
+
+        <!-- Empty State -->
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                ▣
+            </div>
+
+            <h3>
+                No categories found
+            </h3>
+
+            <p>
+                Try changing your search or filter criteria.
+            </p>
+
+            <button type="button" class="btn btn-secondary" (click)="clearFilters()">
+                Clear Filters
+            </button>
+
+        </div>
+
+        }
+
+    </section>
+
+</div>

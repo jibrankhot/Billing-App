@@ -1,0 +1,52 @@
+<div class="category-edit-page">
+
+    @if (category) {
+
+    <div class="page-header">
+
+        <div>
+
+            <button type="button" class="back-button" (click)="onCancel()">
+                ← Back to Category
+            </button>
+
+            <h1>
+                Edit Category
+            </h1>
+
+            <p>
+                Update the information for {{ category.name }}.
+            </p>
+
+        </div>
+
+    </div>
+
+    <app-category-form [category]="category" [isSubmitting]="isSubmitting" (formSubmit)="onSubmit($event)"
+        (cancel)="onCancel()" />
+
+    } @else {
+
+    <div class="not-found">
+
+        <div class="not-found-icon">
+            ?
+        </div>
+
+        <h2>
+            Category Not Found
+        </h2>
+
+        <p>
+            The category you're trying to edit doesn't exist.
+        </p>
+
+        <button type="button" class="btn btn-secondary" (click)="goBack()">
+            Back to Categories
+        </button>
+
+    </div>
+
+    }
+
+</div>

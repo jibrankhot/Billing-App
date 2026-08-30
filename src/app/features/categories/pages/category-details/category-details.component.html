@@ -1,0 +1,147 @@
+<div class="category-details-page">
+
+    @if (category) {
+
+    <div class="page-header">
+
+        <div>
+
+            <button type="button" class="back-button" (click)="goBack()">
+                ← Back to Categories
+            </button>
+
+            <h1>
+                Category Details
+            </h1>
+
+            <p>
+                View information about this category.
+            </p>
+
+        </div>
+
+        <button type="button" class="btn btn-primary" (click)="editCategory()">
+            Edit Category
+        </button>
+
+    </div>
+
+
+    <section class="details-card">
+
+        <div class="category-heading">
+
+            <div class="category-avatar">
+                {{ category.name.charAt(0).toUpperCase() }}
+            </div>
+
+            <div>
+
+                <h2>
+                    {{ category.name }}
+                </h2>
+
+                <span class="status-badge" [class.active]="category.isActive" [class.inactive]="!category.isActive">
+                    {{ category.isActive ? 'Active' : 'Inactive' }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="details-grid">
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Category Name
+                </span>
+
+                <strong>
+                    {{ category.name }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Products
+                </span>
+
+                <strong>
+                    {{ category.productCount }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item full-width">
+
+                <span class="detail-label">
+                    Description
+                </span>
+
+                <p>
+                    {{ category.description || 'No description provided.' }}
+                </p>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Created
+                </span>
+
+                <strong>
+                    {{ category.createdAt | date:'dd MMM yyyy, hh:mm a' }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Last Updated
+                </span>
+
+                <strong>
+                    {{ category.updatedAt | date:'dd MMM yyyy, hh:mm a' }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    } @else {
+
+    <div class="not-found">
+
+        <div class="not-found-icon">
+            ?
+        </div>
+
+        <h2>
+            Category Not Found
+        </h2>
+
+        <p>
+            The category you're looking for doesn't exist.
+        </p>
+
+        <button type="button" class="btn btn-secondary" (click)="goBack()">
+            Back to Categories
+        </button>
+
+    </div>
+
+    }
+
+</div>
