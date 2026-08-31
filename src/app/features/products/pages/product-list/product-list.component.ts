@@ -96,6 +96,36 @@ export class ProductListComponent implements OnInit {
     ]);
   }
 
+  deleteProduct(product: Product): void {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${product.name}"?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.productService.deleteProduct(product.id).subscribe({
+      next: deleted => {
+        if (!deleted) {
+          console.error('Product could not be deleted.');
+          return;
+        }
+
+        this.products = this.products.filter(
+          item => item.id !== product.id
+        );
+      },
+
+      error: error => {
+        console.error(
+          'Failed to delete product:',
+          error
+        );
+      }
+    });
+  }
+
   isLowStock(product: Product): boolean {
     return product.currentStock <= product.minimumStock;
   }

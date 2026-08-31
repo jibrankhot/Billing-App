@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 
 import { Product } from '../../../../shared/models/product';
 import { ProductFormComponent } from '../../components/product-form/product-form.component';
+import { ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-product-create',
@@ -18,23 +19,31 @@ export class ProductCreateComponent {
   isSubmitting = false;
 
   constructor(
+    private readonly productService: ProductService,
     private readonly router: Router
   ) { }
 
   onSubmit(productData: Partial<Product>): void {
     this.isSubmitting = true;
 
-    console.log('Product to create:', productData);
+    this.productService.createProduct(productData).subscribe({
+      next: product => {
+        console.log('Product created:', product);
 
-    /*
-     * API integration will be added here later.
-     *
-     * For now we simulate a successful save.
-     */
-    setTimeout(() => {
-      this.isSubmitting = false;
-      this.router.navigate(['/products']);
-    }, 500);
+        this.isSubmitting = false;
+
+        this.router.navigate(['/products']);
+      },
+
+      error: error => {
+        console.error(
+          'Failed to create product:',
+          error
+        );
+
+        this.isSubmitting = false;
+      }
+    });
   }
 
   onCancel(): void {
