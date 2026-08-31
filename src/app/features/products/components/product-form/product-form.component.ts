@@ -139,12 +139,43 @@ export class ProductFormComponent {
   submit(): void {
     if (this.productForm.invalid) {
       this.productForm.markAllAsTouched();
+
+      this.focusFirstInvalidField();
+
       return;
     }
 
     this.formSubmit.emit(
       this.productForm.getRawValue()
     );
+  }
+  private focusFirstInvalidField(): void {
+    const firstInvalidControl =
+      Object.keys(this.productForm.controls).find(
+        fieldName =>
+          this.productForm.get(fieldName)?.invalid
+      );
+
+    if (!firstInvalidControl) {
+      return;
+    }
+
+    const element = document.getElementById(
+      firstInvalidControl
+    );
+
+    if (!element) {
+      return;
+    }
+
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+
+    setTimeout(() => {
+      element.focus();
+    }, 300);
   }
 
   onCancel(): void {

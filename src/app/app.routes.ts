@@ -2,18 +2,24 @@ import { Routes } from '@angular/router';
 
 import { AuthLayoutComponent } from './layout/auth-layout/auth-layout.component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
+
 import { authGuard } from './core/auth/guards/auth.guard';
 
 export const routes: Routes = [
+
+    // Default route
     {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'
     },
+
+    // Authentication routes
     {
         path: 'auth',
         component: AuthLayoutComponent,
         children: [
+
             {
                 path: 'login',
                 loadComponent: () =>
@@ -21,6 +27,7 @@ export const routes: Routes = [
                         m => m.LoginComponent
                     )
             },
+
             {
                 path: 'forgot-password',
                 loadComponent: () =>
@@ -28,12 +35,17 @@ export const routes: Routes = [
                         m => m.ForgotPasswordComponent
                     )
             }
+
         ]
     },
+
+    // Main application routes
     {
         path: '',
         component: MainLayoutComponent,
         children: [
+
+            // Dashboard
             {
                 path: 'dashboard',
                 canActivate: [authGuard],
@@ -41,11 +53,68 @@ export const routes: Routes = [
                     import('./features/dashboard/dashboard.component').then(
                         m => m.DashboardComponent
                     )
+            },
+
+            // Products
+            {
+                path: 'products',
+                canActivate: [authGuard],
+                children: [
+
+                    // /products
+                    {
+                        path: '',
+                        loadComponent: () =>
+                            import(
+                                './features/products/pages/product-list/product-list.component'
+                            ).then(
+                                m => m.ProductListComponent
+                            )
+                    },
+
+                    // /products/create
+                    {
+                        path: 'create',
+                        loadComponent: () =>
+                            import(
+                                './features/products/pages/product-create/product-create.component'
+                            ).then(
+                                m => m.ProductCreateComponent
+                            )
+                    },
+
+                    // /products/:id/edit
+                    {
+                        path: ':id/edit',
+                        loadComponent: () =>
+                            import(
+                                './features/products/pages/product-edit/product-edit.component'
+                            ).then(
+                                m => m.ProductEditComponent
+                            )
+                    },
+
+                    // /products/:id
+                    {
+                        path: ':id',
+                        loadComponent: () =>
+                            import(
+                                './features/products/pages/product-details/product-details.component'
+                            ).then(
+                                m => m.ProductDetailsComponent
+                            )
+                    }
+
+                ]
             }
+
         ]
     },
+
+    // Unknown routes
     {
         path: '**',
         redirectTo: 'dashboard'
     }
+
 ];
