@@ -1,0 +1,327 @@
+<div class="purchase-order-list-page">
+
+    <!-- Page Header -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+                Purchase Orders
+            </h1>
+
+            <p>
+                Manage purchase orders and track incoming inventory.
+            </p>
+
+        </div>
+
+        <a routerLink="/purchases/create" class="btn btn-primary">
+            <span class="btn-icon">+</span>
+            Create Purchase Order
+        </a>
+
+    </div>
+
+
+    <!-- Filters -->
+
+    <section class="filter-card">
+
+        <div class="search-field">
+
+            <span class="search-icon">
+                ⌕
+            </span>
+
+            <input type="search" placeholder="Search order number or supplier..." [(ngModel)]="searchTerm" />
+
+        </div>
+
+        <select [(ngModel)]="selectedStatus" aria-label="Filter by purchase order status">
+
+            <option value="all">
+                All Status
+            </option>
+
+            <option value="draft">
+                Draft
+            </option>
+
+            <option value="ordered">
+                Ordered
+            </option>
+
+            <option value="partially-received">
+                Partially Received
+            </option>
+
+            <option value="received">
+                Received
+            </option>
+
+            <option value="cancelled">
+                Cancelled
+            </option>
+
+        </select>
+
+        <button type="button" class="clear-button" (click)="clearFilters()">
+            Clear
+        </button>
+
+    </section>
+
+
+    <!-- Purchase Order Table -->
+
+    <section class="table-card">
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>
+                    Purchase Order List
+                </h2>
+
+                <span>
+                    {{ filteredPurchaseOrders.length }} order(s)
+                </span>
+
+            </div>
+
+        </div>
+
+
+        @if (isLoading) {
+
+        <div class="loading-state">
+            Loading purchase orders...
+        </div>
+
+        } @else if (filteredPurchaseOrders.length > 0) {
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Order
+                        </th>
+
+                        <th>
+                            Supplier
+                        </th>
+
+                        <th>
+                            Order Date
+                        </th>
+
+                        <th>
+                            Expected Date
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Total
+                        </th>
+
+                        <th class="actions-column">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @for (
+                    order of filteredPurchaseOrders;
+                    track order.id
+                    ) {
+
+                    <tr>
+
+                        <!-- Order -->
+
+                        <td>
+
+                            <div class="order-cell">
+
+                                <span class="order-icon">
+                                    PO
+                                </span>
+
+                                <div class="order-info">
+
+                                    <strong>
+                                        {{ order.orderNumber }}
+                                    </strong>
+
+                                    <span>
+                                        #{{ order.id }}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- Supplier -->
+
+                        <td>
+
+                            <div class="supplier-info">
+
+                                <strong>
+                                    {{ order.supplierName }}
+                                </strong>
+
+                                <span>
+                                    Supplier ID: {{ order.supplierId }}
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- Order Date -->
+
+                        <td>
+
+                            <span class="date-value">
+                                {{ order.orderDate | date:'dd MMM yyyy' }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- Expected Date -->
+
+                        <td>
+
+                            @if (order.expectedDate) {
+
+                            <span class="date-value">
+                                {{ order.expectedDate | date:'dd MMM yyyy' }}
+                            </span>
+
+                            } @else {
+
+                            <span class="not-available">
+                                Not specified
+                            </span>
+
+                            }
+
+                        </td>
+
+
+                        <!-- Status -->
+
+                        <td>
+
+                            <span class="status-badge" [class.status-draft]="order.status === 'draft'"
+                                [class.status-ordered]="order.status === 'ordered'"
+                                [class.status-partial]="order.status === 'partially-received'"
+                                [class.status-received]="order.status === 'received'"
+                                [class.status-cancelled]="order.status === 'cancelled'">
+                                {{ getStatusLabel(order.status) }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- Total -->
+
+                        <td>
+
+                            <strong class="total-value">
+                                ₹{{ order.totalAmount | number:'1.2-2' }}
+                            </strong>
+
+                        </td>
+
+
+                        <!-- Actions -->
+
+                        <td>
+
+                            <div class="actions">
+
+                                <button type="button" class="action-button" (click)="viewPurchaseOrder(order)">
+                                    View
+                                </button>
+
+                                @if (
+                                order.status === 'draft' ||
+                                order.status === 'ordered'
+                                ) {
+
+                                <button type="button" class="action-button" (click)="editPurchaseOrder(order)">
+                                    Edit
+                                </button>
+
+                                }
+
+                                <button type="button" class="action-button delete-action"
+                                    (click)="deletePurchaseOrder(order)">
+                                    Delete
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        } @else {
+
+        <!-- Empty State -->
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                PO
+            </div>
+
+            <h3>
+                No purchase orders found
+            </h3>
+
+            <p>
+                Try changing your search or status filter.
+            </p>
+
+            <button type="button" class="btn btn-secondary" (click)="clearFilters()">
+                Clear Filters
+            </button>
+
+        </div>
+
+        }
+
+    </section>
+
+</div>

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { DatePipe } from '@angular/common';
 
 import { Supplier } from '../../../../shared/models/supplier';
@@ -10,7 +10,7 @@ import { SupplierService } from '../../services/supplier.service';
   standalone: true,
   imports: [
     DatePipe,
-    RouterLink
+    RouterModule
   ],
   templateUrl: './supplier-details.component.html',
   styleUrl: './supplier-details.component.scss'

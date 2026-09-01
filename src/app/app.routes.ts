@@ -212,6 +212,37 @@ export const routes: Routes = [
                     }
 
                 ]
+            },
+
+            // Purchase Orders
+            {
+                path: 'purchases',
+                canActivate: [authGuard],
+                children: [
+
+                    // /purchases
+                    {
+                        path: '',
+                        loadComponent: () =>
+                            import(
+                                './features/purchases/pages/purchase-order-list/purchase-order-list.component'
+                            ).then(
+                                m => m.PurchaseOrderListComponent
+                            )
+                    },
+
+                    // /purchases/create
+                    {
+                        path: 'create',
+                        loadComponent: () =>
+                            import(
+                                './features/purchases/pages/purchase-order-create/purchase-order-create.component'
+                            ).then(
+                                m => m.PurchaseOrderCreateComponent
+                            )
+                    }
+
+                ]
             }
 
         ]

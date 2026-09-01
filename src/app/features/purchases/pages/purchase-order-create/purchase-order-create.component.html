@@ -1,0 +1,652 @@
+<div class="purchase-order-create-page">
+
+    <!-- Page Header -->
+
+    <div class="page-header">
+
+        <div>
+
+            <button type="button" class="back-button" (click)="onCancel()">
+                ← Back to Purchase Orders
+            </button>
+
+            <h1>
+                Create Purchase Order
+            </h1>
+
+            <p>
+                Create a new purchase order for incoming inventory.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Purchase Order Form -->
+
+    <form class="purchase-order-form" [formGroup]="purchaseOrderForm" (ngSubmit)="submit()" novalidate>
+
+        <!-- Order Information -->
+
+        <section class="form-section">
+
+            <div class="section-header">
+
+                <h2>
+                    Order Information
+                </h2>
+
+                <p>
+                    Enter the basic purchase order information.
+                </p>
+
+            </div>
+
+
+            <div class="form-grid">
+
+                <!-- Order Number -->
+
+                <div class="form-field">
+
+                    <label for="orderNumber">
+                        Order Number
+                        <span class="required">*</span>
+                    </label>
+
+                    <input id="orderNumber" type="text" formControlName="orderNumber" placeholder="PO-2026-001"
+                        [class.invalid]="isFieldInvalid('orderNumber')" />
+
+                    @if (isFieldInvalid('orderNumber')) {
+
+                    <div class="error-message">
+
+                        @if (
+                        purchaseOrderForm
+                        .get('orderNumber')
+                        ?.hasError('required')
+                        ) {
+                        <span>
+                            Order number is required.
+                        </span>
+                        }
+
+                        @if (
+                        purchaseOrderForm
+                        .get('orderNumber')
+                        ?.hasError('maxlength')
+                        ) {
+                        <span>
+                            Order number cannot exceed 30 characters.
+                        </span>
+                        }
+
+                    </div>
+
+                    }
+
+                </div>
+
+
+                <!-- Supplier -->
+
+                <div class="form-field">
+
+                    <label for="supplierId">
+                        Supplier
+                        <span class="required">*</span>
+                    </label>
+
+                    <select id="supplierId" formControlName="supplierId" [class.invalid]="isFieldInvalid('supplierId')">
+
+                        <option [ngValue]="null">
+                            Select supplier
+                        </option>
+
+                        <option [ngValue]="1">
+                            Tech World Supplies
+                        </option>
+
+                        <option [ngValue]="2">
+                            Office Mart
+                        </option>
+
+                        <option [ngValue]="3">
+                            Fresh Foods Distributors
+                        </option>
+
+                        <option [ngValue]="4">
+                            Prime Stationery
+                        </option>
+
+                        <option [ngValue]="5">
+                            General Trading Co.
+                        </option>
+
+                    </select>
+
+                    @if (isFieldInvalid('supplierId')) {
+
+                    <div class="error-message">
+
+                        Supplier is required.
+
+                    </div>
+
+                    }
+
+                </div>
+
+
+                <!-- Order Date -->
+
+                <div class="form-field">
+
+                    <label for="orderDate">
+                        Order Date
+                        <span class="required">*</span>
+                    </label>
+
+                    <input id="orderDate" type="date" formControlName="orderDate"
+                        [class.invalid]="isFieldInvalid('orderDate')" />
+
+                    @if (isFieldInvalid('orderDate')) {
+
+                    <div class="error-message">
+
+                        Order date is required.
+
+                    </div>
+
+                    }
+
+                </div>
+
+
+                <!-- Expected Date -->
+
+                <div class="form-field">
+
+                    <label for="expectedDate">
+                        Expected Delivery Date
+                    </label>
+
+                    <input id="expectedDate" type="date" formControlName="expectedDate" />
+
+                </div>
+
+
+                <!-- Status -->
+
+                <div class="form-field">
+
+                    <label for="status">
+                        Status
+                        <span class="required">*</span>
+                    </label>
+
+                    <select id="status" formControlName="status" [class.invalid]="isFieldInvalid('status')">
+
+                        <option value="draft">
+                            Draft
+                        </option>
+
+                        <option value="ordered">
+                            Ordered
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Order Items -->
+
+        <section class="form-section">
+
+            <div class="section-header section-header-with-action">
+
+                <div>
+
+                    <h2>
+                        Order Items
+                    </h2>
+
+                    <p>
+                        Add the products you want to purchase.
+                    </p>
+
+                </div>
+
+                <button type="button" class="btn btn-secondary add-item-button" (click)="addItem()">
+                    + Add Item
+                </button>
+
+            </div>
+
+
+            <div class="items-container" formArrayName="items">
+
+                @for (
+                item of items.controls;
+                track $index;
+                let i = $index
+                ) {
+
+                <div class="item-row" [formGroupName]="i">
+
+                    <!-- Item Header -->
+
+                    <div class="item-header">
+
+                        <span class="item-number">
+                            Item {{ i + 1 }}
+                        </span>
+
+                        @if (items.length > 1) {
+
+                        <button type="button" class="remove-item-button" (click)="removeItem(i)">
+                            Remove
+                        </button>
+
+                        }
+
+                    </div>
+
+
+                    <!-- Item Fields -->
+
+                    <div class="item-grid">
+
+                        <!-- Product -->
+
+                        <div class="form-field product-field">
+
+                            <label>
+                                Product
+                                <span class="required">*</span>
+                            </label>
+
+                            <select formControlName="productId" [class.invalid]="
+                                        isItemFieldInvalid(i, 'productId')
+                                    ">
+
+                                <option [ngValue]="null">
+                                    Select product
+                                </option>
+
+                                <option [ngValue]="1">
+                                    Wireless Keyboard
+                                </option>
+
+                                <option [ngValue]="2">
+                                    Bluetooth Mouse
+                                </option>
+
+                                <option [ngValue]="3">
+                                    USB Type-C Cable
+                                </option>
+
+                                <option [ngValue]="4">
+                                    Office Notebook
+                                </option>
+
+                                <option [ngValue]="5">
+                                    Printer Paper
+                                </option>
+
+                                <option [ngValue]="6">
+                                    Coffee Beans
+                                </option>
+
+                            </select>
+
+                            @if (
+                            isItemFieldInvalid(i, 'productId')
+                            ) {
+
+                            <div class="error-message">
+                                Product is required.
+                            </div>
+
+                            }
+
+                        </div>
+
+
+                        <!-- SKU -->
+
+                        <div class="form-field">
+
+                            <label>
+                                SKU
+                            </label>
+
+                            <input type="text" formControlName="sku" placeholder="PRD-001" />
+
+                        </div>
+
+
+                        <!-- Quantity -->
+
+                        <div class="form-field">
+
+                            <label>
+                                Quantity
+                                <span class="required">*</span>
+                            </label>
+
+                            <input type="number" formControlName="quantity" min="1" step="1" [class.invalid]="
+                                        isItemFieldInvalid(i, 'quantity')
+                                    " (input)="calculateItemTotal(i)" />
+
+                            @if (
+                            isItemFieldInvalid(i, 'quantity')
+                            ) {
+
+                            <div class="error-message">
+                                Quantity must be at least 1.
+                            </div>
+
+                            }
+
+                        </div>
+
+
+                        <!-- Unit Price -->
+
+                        <div class="form-field">
+
+                            <label>
+                                Unit Price
+                                <span class="required">*</span>
+                            </label>
+
+                            <div class="input-with-prefix">
+
+                                <span>
+                                    ₹
+                                </span>
+
+                                <input type="number" formControlName="unitPrice" min="0" step="0.01"
+                                    (input)="calculateItemTotal(i)" />
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Tax Rate -->
+
+                        <div class="form-field">
+
+                            <label>
+                                Tax Rate
+                                <span class="required">*</span>
+                            </label>
+
+                            <div class="input-with-suffix">
+
+                                <input type="number" formControlName="taxRate" min="0" max="100" step="0.01"
+                                    (input)="calculateItemTotal(i)" />
+
+                                <span>
+                                    %
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Discount -->
+
+                        <div class="form-field">
+
+                            <label>
+                                Discount
+                            </label>
+
+                            <div class="input-with-prefix">
+
+                                <span>
+                                    ₹
+                                </span>
+
+                                <input type="number" formControlName="discountAmount" min="0" step="0.01"
+                                    (input)="calculateItemTotal(i)" />
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Tax Amount -->
+
+                        <div class="form-field">
+
+                            <label>
+                                Tax Amount
+                            </label>
+
+                            <div class="input-with-prefix readonly-input">
+
+                                <span>
+                                    ₹
+                                </span>
+
+                                <input type="number" formControlName="taxAmount" readonly />
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Item Total -->
+
+                        <div class="form-field">
+
+                            <label>
+                                Item Total
+                            </label>
+
+                            <div class="input-with-prefix readonly-input total-input">
+
+                                <span>
+                                    ₹
+                                </span>
+
+                                <input type="number" formControlName="totalAmount" readonly />
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                }
+
+            </div>
+
+        </section>
+
+
+        <!-- Order Summary -->
+
+        <section class="form-section">
+
+            <div class="section-header">
+
+                <h2>
+                    Order Summary
+                </h2>
+
+                <p>
+                    Totals are calculated from the order items.
+                </p>
+
+            </div>
+
+
+            <div class="summary-grid">
+
+                <!-- Subtotal -->
+
+                <div class="form-field">
+
+                    <label for="subtotal">
+                        Subtotal
+                    </label>
+
+                    <div class="input-with-prefix readonly-input">
+
+                        <span>
+                            ₹
+                        </span>
+
+                        <input id="subtotal" type="number" formControlName="subtotal" readonly />
+
+                    </div>
+
+                </div>
+
+
+                <!-- Tax -->
+
+                <div class="form-field">
+
+                    <label for="taxAmount">
+                        Tax Amount
+                    </label>
+
+                    <div class="input-with-prefix readonly-input">
+
+                        <span>
+                            ₹
+                        </span>
+
+                        <input id="taxAmount" type="number" formControlName="taxAmount" readonly />
+
+                    </div>
+
+                </div>
+
+
+                <!-- Discount -->
+
+                <div class="form-field">
+
+                    <label for="discountAmount">
+                        Discount
+                    </label>
+
+                    <div class="input-with-prefix readonly-input">
+
+                        <span>
+                            ₹
+                        </span>
+
+                        <input id="discountAmount" type="number" formControlName="discountAmount" readonly />
+
+                    </div>
+
+                </div>
+
+
+                <!-- Total -->
+
+                <div class="form-field total-field">
+
+                    <label for="totalAmount">
+                        Total Amount
+                    </label>
+
+                    <div class="input-with-prefix total-input readonly-input">
+
+                        <span>
+                            ₹
+                        </span>
+
+                        <input id="totalAmount" type="number" formControlName="totalAmount" readonly />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Notes -->
+
+        <section class="form-section">
+
+            <div class="section-header">
+
+                <h2>
+                    Notes
+                </h2>
+
+                <p>
+                    Add any additional information about this purchase order.
+                </p>
+
+            </div>
+
+            <div class="form-field">
+
+                <label for="notes">
+                    Notes
+                </label>
+
+                <textarea id="notes" formControlName="notes" rows="4"
+                    placeholder="Enter notes or special instructions..."></textarea>
+
+                @if (
+                purchaseOrderForm
+                .get('notes')
+                ?.hasError('maxlength')
+                ) {
+
+                <div class="error-message">
+                    Notes cannot exceed 500 characters.
+                </div>
+
+                }
+
+            </div>
+
+        </section>
+
+
+        <!-- Form Actions -->
+
+        <div class="form-actions">
+
+            <button type="button" class="btn btn-secondary" [disabled]="isSubmitting" (click)="onCancel()">
+                Cancel
+            </button>
+
+            <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+
+                @if (isSubmitting) {
+                Saving...
+                } @else {
+                Save Purchase Order
+                }
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
