@@ -1,0 +1,299 @@
+<div class="supplier-list-page">
+
+    <!-- Page Header -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>Suppliers</h1>
+
+            <p>
+                Manage your suppliers and supplier information.
+            </p>
+
+        </div>
+
+        <a routerLink="/suppliers/create" class="btn btn-primary">
+            <span class="btn-icon">+</span>
+            Add Supplier
+        </a>
+
+    </div>
+
+
+    <!-- Filters -->
+
+    <section class="filter-card">
+
+        <div class="search-field">
+
+            <span class="search-icon">
+                ⌕
+            </span>
+
+            <input type="search" placeholder="Search suppliers..." [(ngModel)]="searchTerm" />
+
+        </div>
+
+        <select [(ngModel)]="selectedStatus" aria-label="Filter by status">
+
+            <option value="all">
+                All Status
+            </option>
+
+            <option value="active">
+                Active
+            </option>
+
+            <option value="inactive">
+                Inactive
+            </option>
+
+        </select>
+
+        <button type="button" class="clear-button" (click)="clearFilters()">
+            Clear
+        </button>
+
+    </section>
+
+
+    <!-- Supplier Table -->
+
+    <section class="table-card">
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>
+                    Supplier List
+                </h2>
+
+                <span>
+                    {{ filteredSuppliers.length }} supplier(s)
+                </span>
+
+            </div>
+
+        </div>
+
+
+        @if (filteredSuppliers.length > 0) {
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Supplier
+                        </th>
+
+                        <th>
+                            Contact
+                        </th>
+
+                        <th>
+                            Location
+                        </th>
+
+                        <th>
+                            Payment Terms
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Created
+                        </th>
+
+                        <th class="actions-column">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @for (
+                    supplier of filteredSuppliers;
+                    track supplier.id
+                    ) {
+
+                    <tr>
+
+                        <!-- Supplier -->
+
+                        <td>
+
+                            <div class="supplier-cell">
+
+                                <span class="supplier-avatar">
+                                    {{ supplier.name.charAt(0).toUpperCase() }}
+                                </span>
+
+                                <div class="supplier-info">
+
+                                    <strong>
+                                        {{ supplier.name }}
+                                    </strong>
+
+                                    <span>
+                                        {{ supplier.code }}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- Contact -->
+
+                        <td>
+
+                            <div class="contact-info">
+
+                                <strong>
+                                    {{ supplier.contactPerson }}
+                                </strong>
+
+                                <span>
+                                    {{ supplier.phone }}
+                                </span>
+
+                                <span>
+                                    {{ supplier.email }}
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- Location -->
+
+                        <td>
+
+                            <div class="location-info">
+
+                                <strong>
+                                    {{ supplier.city }}
+                                </strong>
+
+                                <span>
+                                    {{ supplier.state }}
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- Payment Terms -->
+
+                        <td>
+
+                            <span class="payment-terms">
+                                {{ supplier.paymentTerms }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- Status -->
+
+                        <td>
+
+                            <span class="status-badge" [class.active]="supplier.isActive"
+                                [class.inactive]="!supplier.isActive">
+                                {{ supplier.isActive ? 'Active' : 'Inactive' }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- Created -->
+
+                        <td>
+
+                            <span class="created-date">
+                                {{ supplier.createdAt | date:'dd MMM yyyy' }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- Actions -->
+
+                        <td>
+
+                            <div class="actions">
+
+                                <button type="button" class="action-button" (click)="viewSupplier(supplier)">
+                                    View
+                                </button>
+
+                                <button type="button" class="action-button" (click)="editSupplier(supplier)">
+                                    Edit
+                                </button>
+
+                                <button type="button" class="action-button delete-action"
+                                    (click)="deleteSupplier(supplier)">
+                                    Delete
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        } @else {
+
+        <!-- Empty State -->
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                ♧
+            </div>
+
+            <h3>
+                No suppliers found
+            </h3>
+
+            <p>
+                Try changing your search or filter criteria.
+            </p>
+
+            <button type="button" class="btn btn-secondary" (click)="clearFilters()">
+                Clear Filters
+            </button>
+
+        </div>
+
+        }
+
+    </section>
+
+</div>

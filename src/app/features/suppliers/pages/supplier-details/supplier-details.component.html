@@ -1,0 +1,295 @@
+<div class="supplier-details-page">
+
+    @if (supplier) {
+
+    <!-- Page Header -->
+
+    <div class="page-header">
+
+        <div class="header-left">
+
+            <button type="button" class="back-button" (click)="goBack()">
+                ← Back to Suppliers
+            </button>
+
+            <div class="title-row">
+
+                <div class="supplier-avatar">
+                    {{ supplier.name.charAt(0).toUpperCase() }}
+                </div>
+
+                <div>
+
+                    <h1>
+                        {{ supplier.name }}
+                    </h1>
+
+                    <p>
+                        {{ supplier.code }}
+                    </p>
+
+                </div>
+
+                <span class="status-badge" [class.active]="supplier.isActive" [class.inactive]="!supplier.isActive">
+                    {{ supplier.isActive ? 'Active' : 'Inactive' }}
+                </span>
+
+            </div>
+
+        </div>
+
+        <button type="button" class="btn btn-primary" (click)="editSupplier()">
+            Edit Supplier
+        </button>
+
+    </div>
+
+
+    <!-- Contact Information -->
+
+    <section class="details-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>
+                    Contact Information
+                </h2>
+
+                <p>
+                    Supplier contact details.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="details-grid">
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Contact Person
+                </span>
+
+                <strong>
+                    {{ supplier.contactPerson }}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Email
+                </span>
+
+                <strong>
+                    {{ supplier.email }}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Phone
+                </span>
+
+                <strong>
+                    {{ supplier.phone }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Address -->
+
+    <section class="details-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>
+                    Address
+                </h2>
+
+                <p>
+                    Supplier business address.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="details-grid">
+
+            <div class="detail-item full-width">
+
+                <span class="detail-label">
+                    Address
+                </span>
+
+                <strong>
+                    {{ supplier.address }}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    City
+                </span>
+
+                <strong>
+                    {{ supplier.city }}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    State
+                </span>
+
+                <strong>
+                    {{ supplier.state }}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Postal Code
+                </span>
+
+                <strong>
+                    {{ supplier.postalCode }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Business Information -->
+
+    <section class="details-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>
+                    Business Information
+                </h2>
+
+                <p>
+                    Tax and payment information.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="details-grid">
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Tax Number
+                </span>
+
+                <strong>
+                    {{ supplier.taxNumber || 'Not provided' }}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Payment Terms
+                </span>
+
+                <strong>
+                    {{ supplier.paymentTerms }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Record Information -->
+
+    <section class="details-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>
+                    Record Information
+                </h2>
+
+                <p>
+                    Supplier record timestamps.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="details-grid">
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Created
+                </span>
+
+                <strong>
+                    {{ supplier.createdAt | date:'dd MMM yyyy, hh:mm a' }}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Last Updated
+                </span>
+
+                <strong>
+                    {{ supplier.updatedAt | date:'dd MMM yyyy, hh:mm a' }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    } @else if (isLoading) {
+
+    <div class="loading-state">
+        Loading supplier...
+    </div>
+
+    }
+
+</div>

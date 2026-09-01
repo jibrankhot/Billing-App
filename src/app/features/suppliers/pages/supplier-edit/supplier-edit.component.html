@@ -1,0 +1,41 @@
+<div class="supplier-edit-page">
+
+    @if (supplier) {
+
+    <!-- Page Header -->
+
+    <div class="page-header">
+
+        <div>
+
+            <button type="button" class="back-button" (click)="onCancel()">
+                ← Back to Supplier
+            </button>
+
+            <h1>
+                Edit Supplier
+            </h1>
+
+            <p>
+                Update {{ supplier.name }} information.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Supplier Form -->
+
+    <app-supplier-form [supplier]="supplier" [isSubmitting]="isSubmitting" (formSubmit)="onSubmit($event)"
+        (cancel)="onCancel()" />
+
+    } @else if (isLoading) {
+
+    <div class="loading-state">
+        Loading supplier...
+    </div>
+
+    }
+
+</div>

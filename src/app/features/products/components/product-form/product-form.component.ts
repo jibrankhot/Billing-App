@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output
+} from '@angular/core';
+
 import {
   FormBuilder,
   FormGroup,
@@ -7,6 +14,8 @@ import {
 } from '@angular/forms';
 
 import { Product } from '../../../../shared/models/product';
+import { Category } from '../../../../shared/models/category';
+import { CategoryService } from '../../../categories/services/category.service';
 
 @Component({
   selector: 'app-product-form',
@@ -17,7 +26,7 @@ import { Product } from '../../../../shared/models/product';
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.scss'
 })
-export class ProductFormComponent {
+export class ProductFormComponent implements OnInit {
 
   @Input()
   product: Product | null = null;
@@ -33,8 +42,13 @@ export class ProductFormComponent {
 
   readonly productForm: FormGroup;
 
+  categories: Category[] = [];
+
+  isLoadingCategories = false;
+
   constructor(
-    private readonly formBuilder: FormBuilder
+    private readonly formBuilder: FormBuilder,
+    private readonly categoryService: CategoryService
   ) {
     this.productForm = this.formBuilder.group({
       sku: [
@@ -119,6 +133,8 @@ export class ProductFormComponent {
   }
 
   ngOnInit(): void {
+    this.loadCategories();
+
     if (this.product) {
       this.productForm.patchValue({
         sku: this.product.sku,
@@ -136,6 +152,29 @@ export class ProductFormComponent {
     }
   }
 
+  loadCategories(): void {
+    this.isLoadingCategories = true;
+
+    this.categoryService.getCategories().subscribe({
+      next: categories => {
+        this.categories = categories.filter(
+          category => category.isActive
+        );
+
+        this.isLoadingCategories = false;
+      },
+
+      error: error => {
+        console.error(
+          'Failed to load categories:',
+          error
+        );
+
+        this.isLoadingCategories = false;
+      }
+    });
+  }
+
   submit(): void {
     if (this.productForm.invalid) {
       this.productForm.markAllAsTouched();
@@ -149,6 +188,7 @@ export class ProductFormComponent {
       this.productForm.getRawValue()
     );
   }
+
   private focusFirstInvalidField(): void {
     const firstInvalidControl =
       Object.keys(this.productForm.controls).find(

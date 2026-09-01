@@ -1,317 +1,494 @@
-<form class="product-form" [formGroup]="productForm" (ngSubmit)="submit()">
+<form
+  class="product-form"
+  [formGroup]="productForm"
+  (ngSubmit)="submit()"
+  novalidate
+>
 
-    <div class="form-section">
+  <!-- Basic Information -->
 
-        <div class="section-header">
-            <h2>Basic Information</h2>
-            <p>Enter the basic details of the product.</p>
-        </div>
+  <section class="form-card">
 
-        <div class="form-grid">
+    <div class="card-header">
+      <div>
+        <h2>Basic Information</h2>
+        <p>Enter the basic product details.</p>
+      </div>
+    </div>
 
-            <!-- SKU -->
-            <div class="form-field">
+    <div class="form-content">
 
-                <label for="sku">
-                    SKU
-                    <span class="required">*</span>
-                </label>
+      <!-- SKU -->
 
-                <input id="sku" type="text" formControlName="sku" placeholder="e.g. PRD-001"
-                    [class.invalid]="isFieldInvalid('sku')" />
+      <div class="form-field">
 
-                @if (isFieldInvalid('sku')) {
-                <span class="error-message">
-                    SKU is required and must be 50 characters or less.
-                </span>
-                }
+        <label for="sku">
+          SKU
+          <span class="required">*</span>
+        </label>
 
-            </div>
+        <input
+          id="sku"
+          type="text"
+          formControlName="sku"
+          placeholder="Enter product SKU"
+          [class.invalid]="isFieldInvalid('sku')"
+        />
 
-            <!-- Product Name -->
-            <div class="form-field">
+        @if (isFieldInvalid('sku')) {
 
-                <label for="name">
-                    Product Name
-                    <span class="required">*</span>
-                </label>
+          <div class="error-message">
 
-                <input id="name" type="text" formControlName="name" placeholder="Enter product name"
-                    [class.invalid]="isFieldInvalid('name')" />
-
-                @if (isFieldInvalid('name')) {
-                <span class="error-message">
-                    Product name is required and must be 150 characters or less.
-                </span>
-                }
-
-            </div>
-
-            <!-- Category -->
-            <div class="form-field">
-
-                <label for="categoryId">
-                    Category
-                    <span class="required">*</span>
-                </label>
-
-                <select id="categoryId" formControlName="categoryId" [class.invalid]="isFieldInvalid('categoryId')">
-                    <option [ngValue]="null">
-                        Select category
-                    </option>
-
-                    <option [ngValue]="1">
-                        Electronics
-                    </option>
-
-                    <option [ngValue]="2">
-                        Grocery
-                    </option>
-
-                    <option [ngValue]="3">
-                        Office Supplies
-                    </option>
-
-                </select>
-
-                @if (isFieldInvalid('categoryId')) {
-                <span class="error-message">
-                    Please select a category.
-                </span>
-                }
-
-            </div>
-
-            <!-- Unit -->
-            <div class="form-field">
-
-                <label for="unit">
-                    Unit
-                    <span class="required">*</span>
-                </label>
-
-                <select id="unit" formControlName="unit" [class.invalid]="isFieldInvalid('unit')">
-                    <option value="pcs">Pieces</option>
-                    <option value="kg">Kilogram</option>
-                    <option value="g">Gram</option>
-                    <option value="ltr">Liter</option>
-                    <option value="ml">Milliliter</option>
-                    <option value="box">Box</option>
-                    <option value="pack">Pack</option>
-                </select>
-
-                @if (isFieldInvalid('unit')) {
-                <span class="error-message">
-                    Unit is required.
-                </span>
-                }
-
-            </div>
-
-        </div>
-
-        <!-- Description -->
-        <div class="form-field full-width">
-
-            <label for="description">
-                Description
-            </label>
-
-            <textarea id="description" formControlName="description" rows="4" placeholder="Enter product description"
-                [class.invalid]="isFieldInvalid('description')"></textarea>
-
-            @if (isFieldInvalid('description')) {
-            <span class="error-message">
-                Description must be 500 characters or less.
-            </span>
+            @if (productForm.get('sku')?.hasError('required')) {
+              <span>SKU is required.</span>
             }
 
-        </div>
+            @if (productForm.get('sku')?.hasError('maxlength')) {
+              <span>SKU cannot exceed 50 characters.</span>
+            }
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- Product Name -->
+
+      <div class="form-field">
+
+        <label for="name">
+          Product Name
+          <span class="required">*</span>
+        </label>
+
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="Enter product name"
+          [class.invalid]="isFieldInvalid('name')"
+        />
+
+        @if (isFieldInvalid('name')) {
+
+          <div class="error-message">
+
+            @if (productForm.get('name')?.hasError('required')) {
+              <span>Product name is required.</span>
+            }
+
+            @if (productForm.get('name')?.hasError('maxlength')) {
+              <span>Product name cannot exceed 150 characters.</span>
+            }
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- Category -->
+
+      <div class="form-field">
+
+        <label for="categoryId">
+          Category
+          <span class="required">*</span>
+        </label>
+
+        <select
+          id="categoryId"
+          formControlName="categoryId"
+          [class.invalid]="isFieldInvalid('categoryId')"
+          [disabled]="isLoadingCategories"
+        >
+
+          <option [ngValue]="null">
+            @if (isLoadingCategories) {
+              Loading categories...
+            } @else {
+              Select category
+            }
+          </option>
+
+          @for (
+            category of categories;
+            track category.id
+          ) {
+
+            <option [ngValue]="category.id">
+              {{ category.name }}
+            </option>
+
+          }
+
+        </select>
+
+        @if (isFieldInvalid('categoryId')) {
+
+          <div class="error-message">
+
+            @if (productForm.get('categoryId')?.hasError('required')) {
+              <span>Category is required.</span>
+            }
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- Unit -->
+
+      <div class="form-field">
+
+        <label for="unit">
+          Unit
+          <span class="required">*</span>
+        </label>
+
+        <input
+          id="unit"
+          type="text"
+          formControlName="unit"
+          placeholder="pcs"
+          [class.invalid]="isFieldInvalid('unit')"
+        />
+
+        @if (isFieldInvalid('unit')) {
+
+          <div class="error-message">
+
+            @if (productForm.get('unit')?.hasError('required')) {
+              <span>Unit is required.</span>
+            }
+
+            @if (productForm.get('unit')?.hasError('maxlength')) {
+              <span>Unit cannot exceed 20 characters.</span>
+            }
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- Description -->
+
+      <div class="form-field full-width">
+
+        <label for="description">
+          Description
+        </label>
+
+        <textarea
+          id="description"
+          rows="4"
+          formControlName="description"
+          placeholder="Enter product description"
+          [class.invalid]="isFieldInvalid('description')"
+        ></textarea>
+
+        @if (isFieldInvalid('description')) {
+
+          <div class="error-message">
+
+            @if (productForm.get('description')?.hasError('maxlength')) {
+              <span>
+                Description cannot exceed 500 characters.
+              </span>
+            }
+
+          </div>
+
+        }
+
+      </div>
 
     </div>
 
+  </section>
 
-    <!-- Pricing -->
-    <div class="form-section">
 
-        <div class="section-header">
-            <h2>Pricing & Tax</h2>
-            <p>Enter purchasing, selling and tax information.</p>
-        </div>
+  <!-- Pricing & Tax -->
 
-        <div class="form-grid">
+  <section class="form-card">
 
-            <!-- Purchase Price -->
-            <div class="form-field">
+    <div class="card-header">
+      <div>
+        <h2>Pricing & Tax</h2>
+        <p>Set purchase, selling and tax information.</p>
+      </div>
+    </div>
 
-                <label for="purchasePrice">
-                    Purchase Price
-                    <span class="required">*</span>
-                </label>
+    <div class="form-content">
 
-                <div class="input-with-prefix">
-                    <span>₹</span>
+      <!-- Purchase Price -->
 
-                    <input id="purchasePrice" type="number" formControlName="purchasePrice" min="0" step="0.01"
-                        [class.invalid]="isFieldInvalid('purchasePrice')" />
-                </div>
+      <div class="form-field">
 
-                @if (isFieldInvalid('purchasePrice')) {
-                <span class="error-message">
-                    Purchase price must be zero or greater.
-                </span>
-                }
+        <label for="purchasePrice">
+          Purchase Price
+          <span class="required">*</span>
+        </label>
 
-            </div>
+        <input
+          id="purchasePrice"
+          type="number"
+          min="0"
+          formControlName="purchasePrice"
+          [class.invalid]="isFieldInvalid('purchasePrice')"
+        />
 
-            <!-- Selling Price -->
-            <div class="form-field">
+        @if (isFieldInvalid('purchasePrice')) {
 
-                <label for="sellingPrice">
-                    Selling Price
-                    <span class="required">*</span>
-                </label>
+          <div class="error-message">
 
-                <div class="input-with-prefix">
-                    <span>₹</span>
+            @if (productForm.get('purchasePrice')?.hasError('required')) {
+              <span>Purchase price is required.</span>
+            }
 
-                    <input id="sellingPrice" type="number" formControlName="sellingPrice" min="0" step="0.01"
-                        [class.invalid]="isFieldInvalid('sellingPrice')" />
-                </div>
+            @if (productForm.get('purchasePrice')?.hasError('min')) {
+              <span>Purchase price cannot be negative.</span>
+            }
 
-                @if (isFieldInvalid('sellingPrice')) {
-                <span class="error-message">
-                    Selling price must be zero or greater.
-                </span>
-                }
+          </div>
 
-            </div>
+        }
 
-            <!-- Tax Rate -->
-            <div class="form-field">
+      </div>
 
-                <label for="taxRate">
-                    Tax Rate
-                    <span class="required">*</span>
-                </label>
 
-                <div class="input-with-suffix">
-                    <input id="taxRate" type="number" formControlName="taxRate" min="0" max="100" step="0.01"
-                        [class.invalid]="isFieldInvalid('taxRate')" />
+      <!-- Selling Price -->
 
-                    <span>%</span>
-                </div>
+      <div class="form-field">
 
-                @if (isFieldInvalid('taxRate')) {
-                <span class="error-message">
-                    Tax rate must be between 0 and 100.
-                </span>
-                }
+        <label for="sellingPrice">
+          Selling Price
+          <span class="required">*</span>
+        </label>
 
-            </div>
+        <input
+          id="sellingPrice"
+          type="number"
+          min="0"
+          formControlName="sellingPrice"
+          [class.invalid]="isFieldInvalid('sellingPrice')"
+        />
 
-        </div>
+        @if (isFieldInvalid('sellingPrice')) {
+
+          <div class="error-message">
+
+            @if (productForm.get('sellingPrice')?.hasError('required')) {
+              <span>Selling price is required.</span>
+            }
+
+            @if (productForm.get('sellingPrice')?.hasError('min')) {
+              <span>Selling price cannot be negative.</span>
+            }
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- Tax Rate -->
+
+      <div class="form-field">
+
+        <label for="taxRate">
+          Tax Rate (%)
+          <span class="required">*</span>
+        </label>
+
+        <input
+          id="taxRate"
+          type="number"
+          min="0"
+          max="100"
+          formControlName="taxRate"
+          [class.invalid]="isFieldInvalid('taxRate')"
+        />
+
+        @if (isFieldInvalid('taxRate')) {
+
+          <div class="error-message">
+
+            @if (productForm.get('taxRate')?.hasError('required')) {
+              <span>Tax rate is required.</span>
+            }
+
+            @if (productForm.get('taxRate')?.hasError('min')) {
+              <span>Tax rate cannot be negative.</span>
+            }
+
+            @if (productForm.get('taxRate')?.hasError('max')) {
+              <span>Tax rate cannot exceed 100%.</span>
+            }
+
+          </div>
+
+        }
+
+      </div>
 
     </div>
 
+  </section>
 
-    <!-- Inventory -->
-    <div class="form-section">
 
-        <div class="section-header">
-            <h2>Inventory</h2>
-            <p>Configure the initial stock and low-stock threshold.</p>
-        </div>
+  <!-- Inventory -->
 
-        <div class="form-grid">
+  <section class="form-card">
 
-            <!-- Current Stock -->
-            <div class="form-field">
-
-                <label for="currentStock">
-                    Current Stock
-                    <span class="required">*</span>
-                </label>
-
-                <input id="currentStock" type="number" formControlName="currentStock" min="0" step="1"
-                    [class.invalid]="isFieldInvalid('currentStock')" />
-
-                @if (isFieldInvalid('currentStock')) {
-                <span class="error-message">
-                    Current stock must be zero or greater.
-                </span>
-                }
-
-            </div>
-
-            <!-- Minimum Stock -->
-            <div class="form-field">
-
-                <label for="minimumStock">
-                    Minimum Stock
-                    <span class="required">*</span>
-                </label>
-
-                <input id="minimumStock" type="number" formControlName="minimumStock" min="0" step="1"
-                    [class.invalid]="isFieldInvalid('minimumStock')" />
-
-                @if (isFieldInvalid('minimumStock')) {
-                <span class="error-message">
-                    Minimum stock must be zero or greater.
-                </span>
-                }
-
-            </div>
-
-        </div>
-
+    <div class="card-header">
+      <div>
+        <h2>Inventory</h2>
+        <p>Set the current stock and minimum stock level.</p>
+      </div>
     </div>
 
+    <div class="form-content">
 
-    <!-- Status -->
-    <div class="form-section">
+      <!-- Current Stock -->
 
-        <div class="section-header">
-            <h2>Status</h2>
-            <p>Control whether this product is available for use.</p>
-        </div>
+      <div class="form-field">
 
-        <label class="toggle-field">
+        <label for="currentStock">
+          Current Stock
+          <span class="required">*</span>
+        </label>
 
-            <input type="checkbox" formControlName="isActive" />
+        <input
+          id="currentStock"
+          type="number"
+          min="0"
+          formControlName="currentStock"
+          [class.invalid]="isFieldInvalid('currentStock')"
+        />
 
-            <span class="toggle"></span>
+        @if (isFieldInvalid('currentStock')) {
 
-            <span class="toggle-content">
+          <div class="error-message">
 
-                <strong>Active Product</strong>
+            @if (productForm.get('currentStock')?.hasError('required')) {
+              <span>Current stock is required.</span>
+            }
 
-                <small>
-                    Active products can be used in sales and purchases.
-                </small>
+            @if (productForm.get('currentStock')?.hasError('min')) {
+              <span>Current stock cannot be negative.</span>
+            }
 
-            </span>
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- Minimum Stock -->
+
+      <div class="form-field">
+
+        <label for="minimumStock">
+          Minimum Stock
+          <span class="required">*</span>
+        </label>
+
+        <input
+          id="minimumStock"
+          type="number"
+          min="0"
+          formControlName="minimumStock"
+          [class.invalid]="isFieldInvalid('minimumStock')"
+        />
+
+        @if (isFieldInvalid('minimumStock')) {
+
+          <div class="error-message">
+
+            @if (productForm.get('minimumStock')?.hasError('required')) {
+              <span>Minimum stock is required.</span>
+            }
+
+            @if (productForm.get('minimumStock')?.hasError('min')) {
+              <span>Minimum stock cannot be negative.</span>
+            }
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- Active -->
+
+      <div class="form-field full-width">
+
+        <label class="checkbox-label">
+
+          <input
+            type="checkbox"
+            formControlName="isActive"
+          />
+
+          <span class="checkbox-content">
+
+            <strong>
+              Active Product
+            </strong>
+
+            <small>
+              Active products can be used in sales and purchases.
+            </small>
+
+          </span>
 
         </label>
 
-    </div>
-
-
-    <!-- Form Actions -->
-    <div class="form-actions">
-
-        <button type="button" class="btn btn-secondary" [disabled]="isSubmitting" (click)="onCancel()">
-            Cancel
-        </button>
-
-        <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
-            @if (isSubmitting) {
-            Saving...
-            } @else {
-            {{ product ? 'Update Product' : 'Save Product' }}
-            }
-        </button>
+      </div>
 
     </div>
+
+  </section>
+
+
+  <!-- Actions -->
+
+  <div class="form-actions">
+
+    <button
+      type="button"
+      class="btn btn-secondary"
+      [disabled]="isSubmitting"
+      (click)="onCancel()"
+    >
+      Cancel
+    </button>
+
+    <button
+      type="submit"
+      class="btn btn-primary"
+      [disabled]="isSubmitting"
+    >
+
+      @if (isSubmitting) {
+        Saving...
+      } @else {
+        Save Product
+      }
+
+    </button>
+
+  </div>
 
 </form>
