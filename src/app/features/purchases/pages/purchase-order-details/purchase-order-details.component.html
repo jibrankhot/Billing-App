@@ -1,0 +1,470 @@
+<div class="purchase-order-details-page">
+
+    <!-- Loading State -->
+
+    @if (isLoading) {
+
+    <div class="loading-state">
+
+        <div class="loading-spinner"></div>
+
+        <p>
+            Loading purchase order...
+        </p>
+
+    </div>
+
+    }
+
+
+    @if (!isLoading && purchaseOrder) {
+
+    <!-- Page Header -->
+
+    <div class="page-header">
+
+        <div>
+
+            <button type="button" class="back-button" (click)="goBack()">
+                ← Back to Purchase Orders
+            </button>
+
+            <div class="page-title-row">
+
+                <div>
+
+                    <h1>
+                        {{ purchaseOrder.orderNumber }}
+                    </h1>
+
+                    <p>
+                        Purchase order details and items.
+                    </p>
+
+                </div>
+
+                <span class="status-badge" [class]="getStatusClass(purchaseOrder.status)">
+                    {{ getStatusLabel(purchaseOrder.status) }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="page-actions">
+
+            <button type="button" class="btn btn-secondary" (click)="editPurchaseOrder()">
+                Edit Purchase Order
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Order Information -->
+
+    <section class="details-section">
+
+        <div class="section-header">
+
+            <h2>
+                Order Information
+            </h2>
+
+            <p>
+                Basic information about this purchase order.
+            </p>
+
+        </div>
+
+
+        <div class="details-grid">
+
+            <!-- Order Number -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Order Number
+                </span>
+
+                <span class="detail-value">
+                    {{ purchaseOrder.orderNumber }}
+                </span>
+
+            </div>
+
+
+            <!-- Supplier -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Supplier
+                </span>
+
+                <span class="detail-value">
+                    {{ purchaseOrder.supplierName }}
+                </span>
+
+            </div>
+
+
+            <!-- Order Date -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Order Date
+                </span>
+
+                <span class="detail-value">
+
+                    {{ purchaseOrder.orderDate | date:'dd MMM yyyy' }}
+
+                </span>
+
+            </div>
+
+
+            <!-- Expected Date -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Expected Delivery
+                </span>
+
+                <span class="detail-value">
+
+                    @if (purchaseOrder.expectedDate) {
+
+                    {{ purchaseOrder.expectedDate | date:'dd MMM yyyy' }}
+
+                    } @else {
+
+                    Not specified
+
+                    }
+
+                </span>
+
+            </div>
+
+
+            <!-- Status -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Status
+                </span>
+
+                <span class="status-badge" [class]="getStatusClass(purchaseOrder.status)">
+                    {{ getStatusLabel(purchaseOrder.status) }}
+                </span>
+
+            </div>
+
+
+            <!-- Created Date -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Created
+                </span>
+
+                <span class="detail-value">
+
+                    {{ purchaseOrder.createdAt | date:'dd MMM yyyy, hh:mm a' }}
+
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Order Items -->
+
+    <section class="details-section">
+
+        <div class="section-header">
+
+            <h2>
+                Order Items
+            </h2>
+
+            <p>
+                Products included in this purchase order.
+            </p>
+
+        </div>
+
+
+        @if (purchaseOrderItems.length > 0) {
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            #
+                        </th>
+
+                        <th>
+                            Product
+                        </th>
+
+                        <th>
+                            SKU
+                        </th>
+
+                        <th class="text-right">
+                            Quantity
+                        </th>
+
+                        <th class="text-right">
+                            Unit Price
+                        </th>
+
+                        <th class="text-right">
+                            Tax
+                        </th>
+
+                        <th class="text-right">
+                            Discount
+                        </th>
+
+                        <th class="text-right">
+                            Total
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @for (
+                    item of purchaseOrderItems;
+                    track item.id;
+                    let i = $index
+                    ) {
+
+                    <tr>
+
+                        <td>
+                            {{ i + 1 }}
+                        </td>
+
+                        <td>
+
+                            <span class="product-name">
+                                {{ item.productName }}
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <span class="sku">
+                                {{ item.sku }}
+                            </span>
+
+                        </td>
+
+                        <td class="text-right">
+                            {{ item.quantity }}
+                        </td>
+
+                        <td class="text-right">
+
+                            ₹{{ item.unitPrice | number:'1.2-2' }}
+
+                        </td>
+
+                        <td class="text-right">
+
+                            ₹{{ item.taxAmount | number:'1.2-2' }}
+
+                            <span class="tax-rate">
+                                ({{ item.taxRate }}%)
+                            </span>
+
+                        </td>
+
+                        <td class="text-right">
+
+                            ₹{{ item.discountAmount | number:'1.2-2' }}
+
+                        </td>
+
+                        <td class="text-right total-cell">
+
+                            ₹{{ item.totalAmount | number:'1.2-2' }}
+
+                        </td>
+
+                    </tr>
+
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        } @else {
+
+        <div class="empty-items">
+
+            <h3>
+                No items found
+            </h3>
+
+            <p>
+                This purchase order does not contain any items.
+            </p>
+
+        </div>
+
+        }
+
+    </section>
+
+
+    <!-- Order Summary -->
+
+    <section class="details-section">
+
+        <div class="section-header">
+
+            <h2>
+                Order Summary
+            </h2>
+
+            <p>
+                Financial summary for this purchase order.
+            </p>
+
+        </div>
+
+
+        <div class="summary-container">
+
+            <div class="summary-row">
+
+                <span>
+                    Subtotal
+                </span>
+
+                <strong>
+                    ₹{{ purchaseOrder.subtotal | number:'1.2-2' }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>
+                    Tax Amount
+                </span>
+
+                <strong>
+                    ₹{{ purchaseOrder.taxAmount | number:'1.2-2' }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>
+                    Discount
+                </span>
+
+                <strong>
+                    - ₹{{ purchaseOrder.discountAmount | number:'1.2-2' }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-divider"></div>
+
+
+            <div class="summary-row summary-total">
+
+                <span>
+                    Total Amount
+                </span>
+
+                <strong>
+                    ₹{{ purchaseOrder.totalAmount | number:'1.2-2' }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Notes -->
+
+    @if (purchaseOrder.notes) {
+
+    <section class="details-section">
+
+        <div class="section-header">
+
+            <h2>
+                Notes
+            </h2>
+
+        </div>
+
+
+        <div class="notes-container">
+
+            <p>
+                {{ purchaseOrder.notes }}
+            </p>
+
+        </div>
+
+    </section>
+
+    }
+
+
+    <!-- Bottom Actions -->
+
+    <div class="bottom-actions">
+
+        <button type="button" class="btn btn-secondary" (click)="goBack()">
+            Back to Purchase Orders
+        </button>
+
+        <button type="button" class="btn btn-primary" (click)="editPurchaseOrder()">
+            Edit Purchase Order
+        </button>
+
+    </div>
+
+    }
+
+</div>

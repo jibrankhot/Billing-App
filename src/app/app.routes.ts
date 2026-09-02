@@ -20,6 +20,7 @@ export const routes: Routes = [
         component: AuthLayoutComponent,
         children: [
 
+            // /auth/login
             {
                 path: 'login',
                 loadComponent: () =>
@@ -28,6 +29,7 @@ export const routes: Routes = [
                     )
             },
 
+            // /auth/forgot-password
             {
                 path: 'forgot-password',
                 loadComponent: () =>
@@ -239,6 +241,28 @@ export const routes: Routes = [
                                 './features/purchases/pages/purchase-order-create/purchase-order-create.component'
                             ).then(
                                 m => m.PurchaseOrderCreateComponent
+                            )
+                    },
+
+                    // /purchases/:id/edit
+                    {
+                        path: ':id/edit',
+                        loadComponent: () =>
+                            import(
+                                './features/purchases/pages/purchase-order-edit/purchase-order-edit.component'
+                            ).then(
+                                m => m.PurchaseOrderEditComponent
+                            )
+                    },
+
+                    // /purchases/:id
+                    {
+                        path: ':id',
+                        loadComponent: () =>
+                            import(
+                                './features/purchases/pages/purchase-order-details/purchase-order-details.component'
+                            ).then(
+                                m => m.PurchaseOrderDetailsComponent
                             )
                     }
 

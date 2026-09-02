@@ -9,9 +9,13 @@ import {
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
+import { Product } from '../../../../shared/models/product';
 import { PurchaseOrder } from '../../../../shared/models/purchase-order';
 import { PurchaseOrderItem } from '../../../../shared/models/purchase-order-item';
+import { Supplier } from '../../../../shared/models/supplier';
 
+import { ProductService } from '../../../products/services/product.service';
+import { SupplierService } from '../../../suppliers/services/supplier.service';
 import { PurchaseOrderService } from '../../services/purchase-order.service';
 
 @Component({
@@ -28,10 +32,17 @@ export class PurchaseOrderCreateComponent implements OnInit {
 
     purchaseOrderForm: FormGroup;
 
+    products: Product[] = [];
+    suppliers: Supplier[] = [];
+
+    isLoadingProducts = false;
+    isLoadingSuppliers = false;
     isSubmitting = false;
 
     constructor(
         private readonly formBuilder: FormBuilder,
+        private readonly productService: ProductService,
+        private readonly supplierService: SupplierService,
         private readonly purchaseOrderService: PurchaseOrderService,
         private readonly router: Router
     ) {
@@ -107,14 +118,70 @@ export class PurchaseOrderCreateComponent implements OnInit {
     }
 
     ngOnInit(): void {
+
         this.setDefaultOrderNumber();
         this.setDefaultOrderDate();
+
+        this.loadProducts();
+        this.loadSuppliers();
 
         this.addItem();
     }
 
     get items(): FormArray {
         return this.purchaseOrderForm.get('items') as FormArray;
+    }
+
+    loadProducts(): void {
+
+        this.isLoadingProducts = true;
+
+        this.productService.getProducts().subscribe({
+            next: products => {
+
+                this.products = products.filter(
+                    product => product.isActive
+                );
+
+                this.isLoadingProducts = false;
+            },
+
+            error: error => {
+
+                console.error(
+                    'Failed to load products:',
+                    error
+                );
+
+                this.isLoadingProducts = false;
+            }
+        });
+    }
+
+    loadSuppliers(): void {
+
+        this.isLoadingSuppliers = true;
+
+        this.supplierService.getSuppliers().subscribe({
+            next: suppliers => {
+
+                this.suppliers = suppliers.filter(
+                    supplier => supplier.isActive
+                );
+
+                this.isLoadingSuppliers = false;
+            },
+
+            error: error => {
+
+                console.error(
+                    'Failed to load suppliers:',
+                    error
+                );
+
+                this.isLoadingSuppliers = false;
+            }
+        });
     }
 
     private createItem(): FormGroup {
@@ -186,7 +253,53 @@ export class PurchaseOrderCreateComponent implements OnInit {
         });
     }
 
+    onProductChange(index: number): void {
+
+        const item = this.items.at(index);
+
+        const productId = Number(
+            item.get('productId')?.value
+        );
+
+        const product = this.products.find(
+            product => product.id === productId
+        );
+
+        if (!product) {
+
+            item.patchValue({
+                productName: '',
+                sku: '',
+                unitPrice: 0,
+                taxRate: 0
+            });
+
+            this.calculateItemTotal(index);
+
+            return;
+        }
+
+        item.patchValue({
+
+            productName:
+                product.name,
+
+            sku:
+                product.sku,
+
+            unitPrice:
+                product.purchasePrice,
+
+            taxRate:
+                product.taxRate
+
+        });
+
+        this.calculateItemTotal(index);
+    }
+
     addItem(): void {
+
         this.items.push(
             this.createItem()
         );
@@ -195,6 +308,7 @@ export class PurchaseOrderCreateComponent implements OnInit {
     }
 
     removeItem(index: number): void {
+
         if (this.items.length === 1) {
             return;
         }
@@ -205,6 +319,7 @@ export class PurchaseOrderCreateComponent implements OnInit {
     }
 
     calculateItemTotal(index: number): void {
+
         const item = this.items.at(index);
 
         const quantity =
@@ -237,7 +352,10 @@ export class PurchaseOrderCreateComponent implements OnInit {
                 ),
 
                 totalAmount: Number(
-                    Math.max(totalAmount, 0).toFixed(2)
+                    Math.max(
+                        totalAmount,
+                        0
+                    ).toFixed(2)
                 )
             },
             {
@@ -249,6 +367,7 @@ export class PurchaseOrderCreateComponent implements OnInit {
     }
 
     calculateTotals(): void {
+
         let subtotal = 0;
         let taxAmount = 0;
         let discountAmount = 0;
@@ -267,8 +386,11 @@ export class PurchaseOrderCreateComponent implements OnInit {
             const discount =
                 Number(item.get('discountAmount')?.value) || 0;
 
-            subtotal += quantity * unitPrice;
+            subtotal +=
+                quantity * unitPrice;
+
             taxAmount += tax;
+
             discountAmount += discount;
         });
 
@@ -292,7 +414,10 @@ export class PurchaseOrderCreateComponent implements OnInit {
                 ),
 
                 totalAmount: Number(
-                    Math.max(totalAmount, 0).toFixed(2)
+                    Math.max(
+                        totalAmount,
+                        0
+                    ).toFixed(2)
                 )
             },
             {
@@ -302,12 +427,15 @@ export class PurchaseOrderCreateComponent implements OnInit {
     }
 
     private setDefaultOrderNumber(): void {
+
         this.purchaseOrderForm.patchValue({
-            orderNumber: this.generateOrderNumber()
+            orderNumber:
+                this.generateOrderNumber()
         });
     }
 
     private setDefaultOrderDate(): void {
+
         const today = new Date()
             .toISOString()
             .split('T')[0];
@@ -318,6 +446,7 @@ export class PurchaseOrderCreateComponent implements OnInit {
     }
 
     private generateOrderNumber(): string {
+
         const timestamp = Date.now();
 
         return `PO-${timestamp}`;
@@ -326,24 +455,117 @@ export class PurchaseOrderCreateComponent implements OnInit {
     submit(): void {
 
         if (this.purchaseOrderForm.invalid) {
+
             this.purchaseOrderForm.markAllAsTouched();
+
             return;
         }
 
         this.isSubmitting = true;
 
-        const purchaseOrderData:
-            Partial<PurchaseOrder> =
+        const formValue =
             this.purchaseOrderForm.getRawValue();
+
+        const selectedSupplier =
+            this.suppliers.find(
+                supplier =>
+                    supplier.id ===
+                    Number(formValue.supplierId)
+            );
+
+        const purchaseOrderData:
+            Partial<PurchaseOrder> = {
+
+            orderNumber:
+                formValue.orderNumber,
+
+            supplierId:
+                Number(formValue.supplierId),
+
+            supplierName:
+                selectedSupplier?.name ?? '',
+
+            orderDate:
+                formValue.orderDate,
+
+            expectedDate:
+                formValue.expectedDate,
+
+            status:
+                formValue.status,
+
+            subtotal:
+                Number(formValue.subtotal),
+
+            taxAmount:
+                Number(formValue.taxAmount),
+
+            discountAmount:
+                Number(formValue.discountAmount),
+
+            totalAmount:
+                Number(formValue.totalAmount),
+
+            notes:
+                formValue.notes
+
+        };
+
+        const purchaseOrderItems:
+            Omit<
+                PurchaseOrderItem,
+                'id' | 'purchaseOrderId'
+            >[] =
+            formValue.items.map(
+                (item: PurchaseOrderItem) => ({
+
+                    productId:
+                        Number(item.productId),
+
+                    productName:
+                        item.productName,
+
+                    sku:
+                        item.sku,
+
+                    quantity:
+                        Number(item.quantity),
+
+                    unitPrice:
+                        Number(item.unitPrice),
+
+                    taxRate:
+                        Number(item.taxRate),
+
+                    taxAmount:
+                        Number(item.taxAmount),
+
+                    discountAmount:
+                        Number(item.discountAmount),
+
+                    totalAmount:
+                        Number(item.totalAmount)
+
+                })
+            );
 
         console.log(
             'Purchase order data:',
             purchaseOrderData
         );
 
+        console.log(
+            'Purchase order items:',
+            purchaseOrderItems
+        );
+
         this.purchaseOrderService
-            .createPurchaseOrder(purchaseOrderData)
+            .createPurchaseOrder(
+                purchaseOrderData,
+                purchaseOrderItems
+            )
             .subscribe({
+
                 next: purchaseOrder => {
 
                     console.log(
@@ -372,6 +594,7 @@ export class PurchaseOrderCreateComponent implements OnInit {
     }
 
     onCancel(): void {
+
         this.router.navigate([
             '/purchases'
         ]);
@@ -394,7 +617,8 @@ export class PurchaseOrderCreateComponent implements OnInit {
         fieldName: string
     ): boolean {
 
-        const item = this.items.at(index);
+        const item =
+            this.items.at(index);
 
         const field =
             item.get(fieldName);

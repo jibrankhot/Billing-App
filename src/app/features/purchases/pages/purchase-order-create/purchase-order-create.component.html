@@ -67,9 +67,11 @@
                         .get('orderNumber')
                         ?.hasError('required')
                         ) {
+
                         <span>
                             Order number is required.
                         </span>
+
                         }
 
                         @if (
@@ -77,9 +79,11 @@
                         .get('orderNumber')
                         ?.hasError('maxlength')
                         ) {
+
                         <span>
                             Order number cannot exceed 30 characters.
                         </span>
+
                         }
 
                     </div>
@@ -101,37 +105,32 @@
                     <select id="supplierId" formControlName="supplierId" [class.invalid]="isFieldInvalid('supplierId')">
 
                         <option [ngValue]="null">
+
+                            @if (isLoadingSuppliers) {
+                            Loading suppliers...
+                            } @else {
                             Select supplier
+                            }
+
                         </option>
 
-                        <option [ngValue]="1">
-                            Tech World Supplies
+                        @for (
+                        supplier of suppliers;
+                        track supplier.id
+                        ) {
+
+                        <option [ngValue]="supplier.id">
+                            {{ supplier.name }} ({{ supplier.code }})
                         </option>
 
-                        <option [ngValue]="2">
-                            Office Mart
-                        </option>
-
-                        <option [ngValue]="3">
-                            Fresh Foods Distributors
-                        </option>
-
-                        <option [ngValue]="4">
-                            Prime Stationery
-                        </option>
-
-                        <option [ngValue]="5">
-                            General Trading Co.
-                        </option>
+                        }
 
                     </select>
 
                     @if (isFieldInvalid('supplierId')) {
 
                     <div class="error-message">
-
                         Supplier is required.
-
                     </div>
 
                     }
@@ -274,35 +273,28 @@
 
                             <select formControlName="productId" [class.invalid]="
                                         isItemFieldInvalid(i, 'productId')
-                                    ">
+                                    " (change)="onProductChange(i)">
 
                                 <option [ngValue]="null">
+
+                                    @if (isLoadingProducts) {
+                                    Loading products...
+                                    } @else {
                                     Select product
+                                    }
+
                                 </option>
 
-                                <option [ngValue]="1">
-                                    Wireless Keyboard
+                                @for (
+                                product of products;
+                                track product.id
+                                ) {
+
+                                <option [ngValue]="product.id">
+                                    {{ product.name }} ({{ product.sku }})
                                 </option>
 
-                                <option [ngValue]="2">
-                                    Bluetooth Mouse
-                                </option>
-
-                                <option [ngValue]="3">
-                                    USB Type-C Cable
-                                </option>
-
-                                <option [ngValue]="4">
-                                    Office Notebook
-                                </option>
-
-                                <option [ngValue]="5">
-                                    Printer Paper
-                                </option>
-
-                                <option [ngValue]="6">
-                                    Coffee Beans
-                                </option>
+                                }
 
                             </select>
 
@@ -601,6 +593,7 @@
 
             </div>
 
+
             <div class="form-field">
 
                 <label for="notes">
@@ -638,9 +631,13 @@
             <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
 
                 @if (isSubmitting) {
+
                 Saving...
+
                 } @else {
+
                 Save Purchase Order
+
                 }
 
             </button>
