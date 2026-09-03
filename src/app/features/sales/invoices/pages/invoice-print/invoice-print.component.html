@@ -1,0 +1,260 @@
+<div class="print-page">
+
+    <!-- Screen-only toolbar -->
+    <div class="print-toolbar no-print">
+
+        <a [routerLink]="['/invoices', invoiceId]" class="btn btn-outline">
+            Back to Invoice
+        </a>
+
+        <button type="button" class="btn btn-primary" (click)="printInvoice()">
+            Print Invoice
+        </button>
+
+    </div>
+
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading-state no-print">
+        Loading invoice...
+    </div>
+
+
+    <!-- Error -->
+    <div *ngIf="!isLoading && errorMessage" class="error-state no-print">
+
+        <p>{{ errorMessage }}</p>
+
+        <a [routerLink]="['/invoices']" class="btn btn-outline">
+            Back to Invoices
+        </a>
+
+    </div>
+
+
+    <!-- Printable Invoice -->
+    <main *ngIf="!isLoading && invoice" class="invoice">
+
+        <!-- Header -->
+        <header class="invoice-header">
+
+            <div class="company-section">
+
+                <h1>Stockly</h1>
+
+                <p>
+                    Inventory & Billing Management
+                </p>
+
+            </div>
+
+            <div class="invoice-title">
+
+                <h2>INVOICE</h2>
+
+                <div class="invoice-number">
+                    {{ invoice.invoiceNumber }}
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- Invoice Meta -->
+        <section class="meta-section">
+
+            <div class="customer-section">
+
+                <h3>Bill To</h3>
+
+                <strong>
+                    {{ invoice.customerName }}
+                </strong>
+
+                <p>
+                    Customer ID:
+                    {{ invoice.customerId }}
+                </p>
+
+            </div>
+
+
+            <div class="date-section">
+
+                <div class="date-row">
+                    <span>Invoice Date</span>
+
+                    <strong>
+                        {{ invoice.invoiceDate | date:'dd MMM yyyy' }}
+                    </strong>
+                </div>
+
+                <div *ngIf="invoice.dueDate" class="date-row">
+
+                    <span>Due Date</span>
+
+                    <strong>
+                        {{ invoice.dueDate | date:'dd MMM yyyy' }}
+                    </strong>
+
+                </div>
+
+                <div class="date-row">
+                    <span>Status</span>
+
+                    <strong>
+                        {{ getStatusLabel(invoice.status) }}
+                    </strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Items -->
+        <section class="items-section">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th class="number-column">#</th>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th class="right">Qty</th>
+                        <th class="right">Unit Price</th>
+                        <th class="right">Tax</th>
+                        <th class="right">Discount</th>
+                        <th class="right">Amount</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr *ngFor="
+              let item of invoiceItems;
+              let i = index
+            ">
+
+                        <td class="number-column">
+                            {{ i + 1 }}
+                        </td>
+
+                        <td>
+                            {{ item.productName }}
+                        </td>
+
+                        <td>
+                            {{ item.sku }}
+                        </td>
+
+                        <td class="right">
+                            {{ item.quantity }}
+                        </td>
+
+                        <td class="right">
+                            ₹{{ item.unitPrice | number:'1.2-2' }}
+                        </td>
+
+                        <td class="right">
+                            ₹{{ item.taxAmount | number:'1.2-2' }}
+                        </td>
+
+                        <td class="right">
+                            ₹{{ item.discountAmount | number:'1.2-2' }}
+                        </td>
+
+                        <td class="right amount">
+                            ₹{{ item.totalAmount | number:'1.2-2' }}
+                        </td>
+
+                    </tr>
+
+                    <tr *ngIf="invoiceItems.length === 0">
+                        <td colspan="8" class="empty-row">
+                            No invoice items found.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+
+        <!-- Bottom Section -->
+        <section class="bottom-section">
+
+            <!-- Notes -->
+            <div *ngIf="invoice.notes" class="notes-section">
+
+                <h3>Notes</h3>
+
+                <p>
+                    {{ invoice.notes }}
+                </p>
+
+            </div>
+
+
+            <!-- Totals -->
+            <div class="totals-section">
+
+                <div class="total-row">
+                    <span>Subtotal</span>
+
+                    <span>
+                        ₹{{ invoice.subtotal | number:'1.2-2' }}
+                    </span>
+                </div>
+
+                <div class="total-row">
+                    <span>Tax</span>
+
+                    <span>
+                        ₹{{ invoice.taxAmount | number:'1.2-2' }}
+                    </span>
+                </div>
+
+                <div class="total-row">
+                    <span>Discount</span>
+
+                    <span>
+                        ₹{{ invoice.discountAmount | number:'1.2-2' }}
+                    </span>
+                </div>
+
+                <div class="total-divider"></div>
+
+                <div class="total-row grand-total">
+                    <strong>Total</strong>
+
+                    <strong>
+                        ₹{{ invoice.totalAmount | number:'1.2-2' }}
+                    </strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Footer -->
+        <footer class="invoice-footer">
+
+            <p>
+                Thank you for your business.
+            </p>
+
+            <p>
+                Generated by Stockly
+            </p>
+
+        </footer>
+
+    </main>
+
+</div>

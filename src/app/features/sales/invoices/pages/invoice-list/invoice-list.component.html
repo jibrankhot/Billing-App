@@ -1,0 +1,434 @@
+<div class="invoice-list-page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+
+        <div>
+            <h1>Invoices</h1>
+
+            <p>
+                Manage customer invoices and billing.
+            </p>
+        </div>
+
+        <a
+            routerLink="/invoices/create"
+            class="primary-button"
+        >
+            + Create Invoice
+        </a>
+
+    </div>
+
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+
+        <div class="summary-card">
+
+            <div class="summary-card-content">
+                <span class="summary-label">
+                    Total Invoices
+                </span>
+
+                <strong>
+                    {{ totalInvoices }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-card-content">
+                <span class="summary-label">
+                    Draft
+                </span>
+
+                <strong>
+                    {{ draftInvoices }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-card-content">
+                <span class="summary-label">
+                    Issued
+                </span>
+
+                <strong>
+                    {{ issuedInvoices }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-card-content">
+                <span class="summary-label">
+                    Paid
+                </span>
+
+                <strong>
+                    {{ paidInvoices }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-card-content">
+                <span class="summary-label">
+                    Invoice Value
+                </span>
+
+                <strong>
+                    ₹{{ totalInvoiceAmount | number:'1.2-2' }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Filters -->
+    <div class="filters-card">
+
+        <div class="search-box">
+
+            <label for="invoiceSearch">
+                Search
+            </label>
+
+            <input
+                id="invoiceSearch"
+                type="text"
+                placeholder="Search invoice number or customer..."
+                [value]="searchTerm"
+                (input)="onSearchChange($event)"
+            >
+
+        </div>
+
+
+        <div class="status-filter">
+
+            <label for="statusFilter">
+                Status
+            </label>
+
+            <select
+                id="statusFilter"
+                [value]="selectedStatus"
+                (change)="onStatusChange($event)"
+            >
+
+                <option value="all">
+                    All Statuses
+                </option>
+
+                <option value="draft">
+                    Draft
+                </option>
+
+                <option value="issued">
+                    Issued
+                </option>
+
+                <option value="partially-paid">
+                    Partially Paid
+                </option>
+
+                <option value="paid">
+                    Paid
+                </option>
+
+                <option value="cancelled">
+                    Cancelled
+                </option>
+
+            </select>
+
+        </div>
+
+
+        @if (searchTerm || selectedStatus !== 'all') {
+
+            <button
+                type="button"
+                class="clear-button"
+                (click)="clearFilters()"
+            >
+                Clear Filters
+            </button>
+
+        }
+
+    </div>
+
+
+    <!-- Error -->
+    @if (errorMessage) {
+
+        <div class="error-banner">
+            {{ errorMessage }}
+
+            <button
+                type="button"
+                (click)="loadInvoices()"
+            >
+                Retry
+            </button>
+        </div>
+
+    }
+
+
+    <!-- Loading -->
+    @if (isLoading) {
+
+        <div class="loading-state">
+
+            <div class="spinner"></div>
+
+            <p>
+                Loading invoices...
+            </p>
+
+        </div>
+
+    } @else {
+
+        <!-- Invoice Table -->
+        @if (filteredInvoices.length > 0) {
+
+            <div class="table-card">
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Invoice</th>
+                                <th>Customer</th>
+                                <th>Invoice Date</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th class="amount-column">
+                                    Total
+                                </th>
+                                <th class="actions-column">
+                                    Actions
+                                </th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @for (
+                                invoice of filteredInvoices;
+                                track invoice.id
+                            ) {
+
+                                <tr>
+
+                                    <!-- Invoice -->
+                                    <td>
+
+                                        <a
+                                            [routerLink]="[
+                                                '/invoices',
+                                                invoice.id
+                                            ]"
+                                            class="invoice-number"
+                                        >
+                                            {{ invoice.invoiceNumber }}
+                                        </a>
+
+                                    </td>
+
+
+                                    <!-- Customer -->
+                                    <td>
+
+                                        <div class="customer-info">
+                                            <strong>
+                                                {{ invoice.customerName }}
+                                            </strong>
+
+                                            <span>
+                                                Customer #{{ invoice.customerId }}
+                                            </span>
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- Invoice Date -->
+                                    <td>
+                                        {{ invoice.invoiceDate | date:'dd MMM yyyy' }}
+                                    </td>
+
+
+                                    <!-- Due Date -->
+                                    <td>
+
+                                        @if (invoice.dueDate) {
+                                            {{ invoice.dueDate | date:'dd MMM yyyy' }}
+                                        } @else {
+                                            <span class="not-available">
+                                                —
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Status -->
+                                    <td>
+
+                                        <span
+                                            class="status-badge"
+                                            [ngClass]="
+                                                getStatusClass(invoice.status)
+                                            "
+                                        >
+                                            {{ getStatusLabel(invoice.status) }}
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- Total -->
+                                    <td class="amount-column">
+
+                                        <strong>
+                                            ₹{{ invoice.totalAmount | number:'1.2-2' }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    <!-- Actions -->
+                                    <td class="actions-column">
+
+                                        <div class="action-buttons">
+
+                                            <a
+                                                [routerLink]="[
+                                                    '/invoices',
+                                                    invoice.id
+                                                ]"
+                                                class="action-button view"
+                                                title="View invoice"
+                                            >
+                                                View
+                                            </a>
+
+                                            <a
+                                                [routerLink]="[
+                                                    '/invoices',
+                                                    invoice.id,
+                                                    'edit'
+                                                ]"
+                                                class="action-button edit"
+                                                title="Edit invoice"
+                                            >
+                                                Edit
+                                            </a>
+
+                                            <button
+                                                type="button"
+                                                class="action-button delete"
+                                                title="Delete invoice"
+                                                (click)="deleteInvoice(invoice)"
+                                            >
+                                                Delete
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        } @else {
+
+            <!-- Empty State -->
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    $
+                </div>
+
+                <h2>
+                    @if (invoices.length === 0) {
+                        No invoices yet
+                    } @else {
+                        No invoices found
+                    }
+                </h2>
+
+                <p>
+
+                    @if (invoices.length === 0) {
+                        Create your first invoice to get started.
+                    } @else {
+                        Try changing your search or filter criteria.
+                    }
+
+                </p>
+
+
+                @if (invoices.length === 0) {
+
+                    <a
+                        routerLink="/invoices/create"
+                        class="primary-button"
+                    >
+                        + Create Invoice
+                    </a>
+
+                } @else {
+
+                    <button
+                        type="button"
+                        class="secondary-button"
+                        (click)="clearFilters()"
+                    >
+                        Clear Filters
+                    </button>
+
+                }
+
+            </div>
+
+        }
+
+    }
+
+</div>

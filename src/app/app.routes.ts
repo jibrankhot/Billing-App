@@ -14,6 +14,7 @@ export const routes: Routes = [
         pathMatch: 'full'
     },
 
+
     // Authentication routes
     {
         path: 'auth',
@@ -24,7 +25,9 @@ export const routes: Routes = [
             {
                 path: 'login',
                 loadComponent: () =>
-                    import('./features/auth/login/login.component').then(
+                    import(
+                        './features/auth/login/login.component'
+                    ).then(
                         m => m.LoginComponent
                     )
             },
@@ -33,13 +36,16 @@ export const routes: Routes = [
             {
                 path: 'forgot-password',
                 loadComponent: () =>
-                    import('./features/auth/forgot-password/forgot-password.component').then(
+                    import(
+                        './features/auth/forgot-password/forgot-password.component'
+                    ).then(
                         m => m.ForgotPasswordComponent
                     )
             }
 
         ]
     },
+
 
     // Main application routes
     {
@@ -52,10 +58,13 @@ export const routes: Routes = [
                 path: 'dashboard',
                 canActivate: [authGuard],
                 loadComponent: () =>
-                    import('./features/dashboard/dashboard.component').then(
+                    import(
+                        './features/dashboard/dashboard.component'
+                    ).then(
                         m => m.DashboardComponent
                     )
             },
+
 
             // Products
             {
@@ -110,6 +119,7 @@ export const routes: Routes = [
                 ]
             },
 
+
             // Categories
             {
                 path: 'categories',
@@ -162,6 +172,7 @@ export const routes: Routes = [
 
                 ]
             },
+
 
             // Suppliers
             {
@@ -216,6 +227,126 @@ export const routes: Routes = [
                 ]
             },
 
+
+            // Customers
+            {
+                path: 'customers',
+                canActivate: [authGuard],
+                children: [
+
+                    // /customers
+                    {
+                        path: '',
+                        loadComponent: () =>
+                            import(
+                                './features/customers/pages/customer-list/customer-list.component'
+                            ).then(
+                                m => m.CustomerListComponent
+                            )
+                    },
+
+                    // /customers/create
+                    {
+                        path: 'create',
+                        loadComponent: () =>
+                            import(
+                                './features/customers/pages/customer-create/customer-create.component'
+                            ).then(
+                                m => m.CustomerCreateComponent
+                            )
+                    },
+
+                    // /customers/:id/edit
+                    {
+                        path: ':id/edit',
+                        loadComponent: () =>
+                            import(
+                                './features/customers/pages/customer-edit/customer-edit.component'
+                            ).then(
+                                m => m.CustomerEditComponent
+                            )
+                    },
+
+                    // /customers/:id
+                    {
+                        path: ':id',
+                        loadComponent: () =>
+                            import(
+                                './features/customers/pages/customer-details/customer-details.component'
+                            ).then(
+                                m => m.CustomerDetailsComponent
+                            )
+                    }
+
+                ]
+            },
+
+
+            // Invoices
+            {
+                path: 'invoices',
+                canActivate: [authGuard],
+                children: [
+
+                    // /invoices
+                    {
+                        path: '',
+                        loadComponent: () =>
+                            import(
+                                './features/sales/invoices/pages/invoice-list/invoice-list.component'
+                            ).then(
+                                m => m.InvoiceListComponent
+                            )
+                    },
+
+                    // /invoices/create
+                    {
+                        path: 'create',
+                        loadComponent: () =>
+                            import(
+                                './features/sales/invoices/pages/invoice-create/invoice-create.component'
+                            ).then(
+                                m => m.InvoiceCreateComponent
+                            )
+                    },
+
+                    // /invoices/:id/edit
+                    {
+                        path: ':id/edit',
+                        loadComponent: () =>
+                            import(
+                                './features/sales/invoices/pages/invoice-edit/invoice-edit.component'
+                            ).then(
+                                m => m.InvoiceEditComponent
+                            )
+                    },
+
+                    // /invoices/:id/print
+                    {
+                        path: ':id/print',
+                        loadComponent: () =>
+                            import(
+                                './features/sales/invoices/pages/invoice-print/invoice-print.component'
+                            ).then(
+                                m => m.InvoicePrintComponent
+                            )
+                    },
+
+                    // /invoices/:id
+                    {
+                        path: ':id',
+                        loadComponent: () =>
+                            import(
+                                './features/sales/invoices/pages/invoice-details/invoice-details.component'
+                            ).then(
+                                m => m.InvoiceDetailsComponent
+                            )
+                    }
+
+                ]
+            },
+
+
             // Purchase Orders
             {
                 path: 'purchases',
@@ -267,10 +398,65 @@ export const routes: Routes = [
                     }
 
                 ]
+            },
+
+
+            // Inventory
+            {
+                path: 'inventory',
+                canActivate: [authGuard],
+                children: [
+
+                    // /inventory
+                    {
+                        path: '',
+                        loadComponent: () =>
+                            import(
+                                './features/inventory/pages/stock-overview/stock-overview.component'
+                            ).then(
+                                m => m.StockOverviewComponent
+                            )
+                    },
+
+                    // /inventory/low-stock
+                    {
+                        path: 'low-stock',
+                        loadComponent: () =>
+                            import(
+                                './features/inventory/pages/low-stock/low-stock.component'
+                            ).then(
+                                m => m.LowStockComponent
+                            )
+                    },
+
+                    // /inventory/movements
+                    {
+                        path: 'movements',
+                        loadComponent: () =>
+                            import(
+                                './features/inventory/pages/stock-movements/stock-movements.component'
+                            ).then(
+                                m => m.StockMovementsComponent
+                            )
+                    },
+
+                    // /inventory/adjustment
+                    {
+                        path: 'adjustment',
+                        loadComponent: () =>
+                            import(
+                                './features/inventory/pages/stock-adjustment/stock-adjustment.component'
+                            ).then(
+                                m => m.StockAdjustmentComponent
+                            )
+                    }
+
+                ]
             }
 
         ]
     },
+
 
     // Unknown routes
     {

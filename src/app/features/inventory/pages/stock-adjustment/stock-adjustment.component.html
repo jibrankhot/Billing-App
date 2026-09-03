@@ -1,0 +1,281 @@
+<div class="page-container">
+
+    <!-- Header -->
+    <div class="page-header">
+
+        <div>
+            <h1>Stock Adjustment</h1>
+
+            <p>
+                Manually increase or decrease inventory quantity.
+            </p>
+        </div>
+
+        <a routerLink="/inventory" class="btn btn-outline">
+            Back to Inventory
+        </a>
+
+    </div>
+
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="state-card">
+
+        Loading stock items...
+
+    </div>
+
+
+    <!-- Form -->
+    <form *ngIf="!isLoading" [formGroup]="adjustmentForm" (ngSubmit)="saveAdjustment()">
+
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    Adjustment Details
+                </h2>
+
+            </div>
+
+
+            <div class="form-content">
+
+
+                <!-- Product -->
+                <div class="form-group">
+
+                    <label for="productId">
+                        Product <span>*</span>
+                    </label>
+
+                    <select id="productId" formControlName="productId" (change)="onProductChange()">
+
+                        <option value="">
+                            Select a product
+                        </option>
+
+                        <option *ngFor="let item of stockItems" [value]="item.productId">
+
+                            {{ item.productName }}
+                            ({{ item.sku }})
+
+                        </option>
+
+                    </select>
+
+                    <small *ngIf="
+              adjustmentForm
+                .get('productId')
+                ?.touched &&
+              adjustmentForm
+                .get('productId')
+                ?.hasError('required')
+            ">
+
+                        Please select a product.
+
+                    </small>
+
+                </div>
+
+
+                <!-- Current Stock -->
+                <div *ngIf="selectedItem" class="stock-preview">
+
+                    <div>
+
+                        <span>
+                            Current Stock
+                        </span>
+
+                        <strong>
+                            {{ selectedItem.quantity }}
+                        </strong>
+
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Reorder Level
+                        </span>
+
+                        <strong>
+                            {{ selectedItem.reorderLevel }}
+                        </strong>
+
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Stock Status
+                        </span>
+
+                        <strong [class.status-low]="
+                selectedItem.status === 'low-stock'
+              " [class.status-danger]="
+                selectedItem.status === 'out-of-stock'
+              ">
+
+                            {{
+                            selectedItem.status === 'in-stock'
+                            ? 'In Stock'
+                            : selectedItem.status === 'low-stock'
+                            ? 'Low Stock'
+                            : 'Out of Stock'
+                            }}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Adjustment Type -->
+                <div class="form-group">
+
+                    <label for="adjustmentType">
+                        Adjustment Type <span>*</span>
+                    </label>
+
+                    <select id="adjustmentType" formControlName="adjustmentType">
+
+                        <option value="add">
+                            Add Stock
+                        </option>
+
+                        <option value="remove">
+                            Remove Stock
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Quantity -->
+                <div class="form-group">
+
+                    <label for="quantity">
+                        Quantity <span>*</span>
+                    </label>
+
+                    <input id="quantity" type="number" min="1" formControlName="quantity">
+
+                    <small *ngIf="
+              adjustmentForm
+                .get('quantity')
+                ?.touched &&
+              adjustmentForm
+                .get('quantity')
+                ?.hasError('required')
+            ">
+
+                        Quantity is required.
+
+                    </small>
+
+                    <small *ngIf="
+              adjustmentForm
+                .get('quantity')
+                ?.touched &&
+              adjustmentForm
+                .get('quantity')
+                ?.hasError('min')
+            ">
+
+                        Quantity must be at least 1.
+
+                    </small>
+
+                </div>
+
+
+                <!-- New Quantity -->
+                <div *ngIf="selectedItem" class="new-stock-preview">
+
+                    <span>
+                        Stock After Adjustment
+                    </span>
+
+                    <strong>
+                        {{ adjustedQuantity }}
+                    </strong>
+
+                </div>
+
+
+                <!-- Reference -->
+                <div class="form-group">
+
+                    <label for="reference">
+                        Reference
+                    </label>
+
+                    <input id="reference" type="text" formControlName="reference" placeholder="ADJ-001">
+
+                </div>
+
+
+                <!-- Notes -->
+                <div class="form-group full-width">
+
+                    <label for="notes">
+                        Notes
+                    </label>
+
+                    <textarea id="notes" rows="4" formControlName="notes" placeholder="Reason for stock adjustment">
+          </textarea>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Success -->
+        <div *ngIf="successMessage" class="success-message">
+
+            {{ successMessage }}
+
+        </div>
+
+
+        <!-- Error -->
+        <div *ngIf="errorMessage" class="error-message">
+
+            {{ errorMessage }}
+
+        </div>
+
+
+        <!-- Actions -->
+        <div class="form-actions">
+
+            <button type="button" class="btn btn-outline" (click)="cancel()" [disabled]="isSaving">
+
+                Cancel
+
+            </button>
+
+            <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+
+                {{
+                isSaving
+                ? 'Saving...'
+                : 'Apply Adjustment'
+                }}
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>

@@ -1,0 +1,468 @@
+<div class="invoice-create-page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+
+        <div class="header-left">
+
+            <button type="button" class="back-button" (click)="onCancel()">
+                ← Back
+            </button>
+
+            <div>
+                <h1>Create Invoice</h1>
+                <p>Create a new customer invoice.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <form [formGroup]="invoiceForm" (ngSubmit)="submit()">
+
+        <!-- Invoice Information -->
+        <section class="form-section">
+
+            <div class="section-header">
+                <h2>Invoice Information</h2>
+                <p>
+                    Enter the basic invoice details.
+                </p>
+            </div>
+
+            <div class="form-grid">
+
+                <!-- Invoice Number -->
+                <div class="form-group">
+
+                    <label for="invoiceNumber">
+                        Invoice Number
+                    </label>
+
+                    <input id="invoiceNumber" type="text" formControlName="invoiceNumber"
+                        [class.invalid]="isFieldInvalid('invoiceNumber')">
+
+                    @if (isFieldInvalid('invoiceNumber')) {
+                    <span class="error-message">
+                        Invoice number is required.
+                    </span>
+                    }
+
+                </div>
+
+
+                <!-- Customer -->
+                <div class="form-group">
+
+                    <label for="customerId">
+                        Customer
+                    </label>
+
+                    <select id="customerId" formControlName="customerId" [class.invalid]="isFieldInvalid('customerId')">
+
+                        <option [ngValue]="null">
+
+                            @if (isLoadingCustomers) {
+                            Loading customers...
+                            } @else {
+                            Select customer
+                            }
+
+                        </option>
+
+                        @for (
+                        customer of customers;
+                        track customer.id
+                        ) {
+
+                        <option [ngValue]="customer.id">
+                            {{ customer.name }}
+                            ({{ customer.code }})
+                        </option>
+
+                        }
+
+                    </select>
+
+                    @if (isFieldInvalid('customerId')) {
+                    <span class="error-message">
+                        Please select a customer.
+                    </span>
+                    }
+
+                </div>
+
+
+                <!-- Invoice Date -->
+                <div class="form-group">
+
+                    <label for="invoiceDate">
+                        Invoice Date
+                    </label>
+
+                    <input id="invoiceDate" type="date" formControlName="invoiceDate"
+                        [class.invalid]="isFieldInvalid('invoiceDate')">
+
+                    @if (isFieldInvalid('invoiceDate')) {
+                    <span class="error-message">
+                        Invoice date is required.
+                    </span>
+                    }
+
+                </div>
+
+
+                <!-- Due Date -->
+                <div class="form-group">
+
+                    <label for="dueDate">
+                        Due Date
+                    </label>
+
+                    <input id="dueDate" type="date" formControlName="dueDate">
+
+                </div>
+
+
+                <!-- Status -->
+                <div class="form-group">
+
+                    <label for="status">
+                        Status
+                    </label>
+
+                    <select id="status" formControlName="status" [class.invalid]="isFieldInvalid('status')">
+
+                        <option value="draft">
+                            Draft
+                        </option>
+
+                        <option value="issued">
+                            Issued
+                        </option>
+
+                        <option value="partially-paid">
+                            Partially Paid
+                        </option>
+
+                        <option value="paid">
+                            Paid
+                        </option>
+
+                        <option value="cancelled">
+                            Cancelled
+                        </option>
+
+                    </select>
+
+                    @if (isFieldInvalid('status')) {
+                    <span class="error-message">
+                        Status is required.
+                    </span>
+                    }
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Invoice Items -->
+        <section class="form-section">
+
+            <div class="section-header section-header-with-action">
+
+                <div>
+                    <h2>Invoice Items</h2>
+                    <p>
+                        Add the products being sold.
+                    </p>
+                </div>
+
+                <button type="button" class="secondary-button" (click)="addItem()">
+                    + Add Item
+                </button>
+
+            </div>
+
+
+            <div class="items-container" formArrayName="items">
+
+                @for (
+                item of items.controls;
+                track $index;
+                let i = $index
+                ) {
+
+                <div class="item-row" [formGroupName]="i">
+
+                    <div class="item-number">
+                        {{ i + 1 }}
+                    </div>
+
+
+                    <!-- Product -->
+                    <div class="form-group product-field">
+
+                        <label>
+                            Product
+                        </label>
+
+                        <select formControlName="productId" [class.invalid]="
+                                    isItemFieldInvalid(i, 'productId')
+                                " (change)="onProductChange(i)">
+
+                            <option [ngValue]="null">
+
+                                @if (isLoadingProducts) {
+                                Loading products...
+                                } @else {
+                                Select product
+                                }
+
+                            </option>
+
+                            @for (
+                            product of products;
+                            track product.id
+                            ) {
+
+                            <option [ngValue]="product.id">
+                                {{ product.name }}
+                                ({{ product.sku }})
+                            </option>
+
+                            }
+
+                        </select>
+
+                        @if (
+                        isItemFieldInvalid(i, 'productId')
+                        ) {
+                        <span class="error-message">
+                            Please select a product.
+                        </span>
+                        }
+
+                    </div>
+
+
+                    <!-- SKU -->
+                    <div class="form-group sku-field">
+
+                        <label>
+                            SKU
+                        </label>
+
+                        <input type="text" formControlName="sku" readonly>
+
+                    </div>
+
+
+                    <!-- Quantity -->
+                    <div class="form-group quantity-field">
+
+                        <label>
+                            Quantity
+                        </label>
+
+                        <input type="number" formControlName="quantity" min="1" [class.invalid]="
+                                    isItemFieldInvalid(i, 'quantity')
+                                " (input)="calculateItemTotal(i)">
+
+                        @if (
+                        isItemFieldInvalid(i, 'quantity')
+                        ) {
+                        <span class="error-message">
+                            Quantity must be at least 1.
+                        </span>
+                        }
+
+                    </div>
+
+
+                    <!-- Unit Price -->
+                    <div class="form-group price-field">
+
+                        <label>
+                            Unit Price
+                        </label>
+
+                        <input type="number" formControlName="unitPrice" min="0" step="0.01" [class.invalid]="
+                                    isItemFieldInvalid(i, 'unitPrice')
+                                " (input)="calculateItemTotal(i)">
+
+                        @if (
+                        isItemFieldInvalid(i, 'unitPrice')
+                        ) {
+                        <span class="error-message">
+                            Unit price cannot be negative.
+                        </span>
+                        }
+
+                    </div>
+
+
+                    <!-- Tax -->
+                    <div class="form-group tax-field">
+
+                        <label>
+                            Tax %
+                        </label>
+
+                        <input type="number" formControlName="taxRate" min="0" max="100" step="0.01" [class.invalid]="
+                                    isItemFieldInvalid(i, 'taxRate')
+                                " (input)="calculateItemTotal(i)">
+
+                    </div>
+
+
+                    <!-- Discount -->
+                    <div class="form-group discount-field">
+
+                        <label>
+                            Discount
+                        </label>
+
+                        <input type="number" formControlName="discountAmount" min="0" step="0.01"
+                            (input)="calculateItemTotal(i)">
+
+                    </div>
+
+
+                    <!-- Tax Amount -->
+                    <div class="form-group calculated-field">
+
+                        <label>
+                            Tax Amount
+                        </label>
+
+                        <input type="number" formControlName="taxAmount" readonly>
+
+                    </div>
+
+
+                    <!-- Total -->
+                    <div class="form-group total-field">
+
+                        <label>
+                            Total
+                        </label>
+
+                        <input type="number" formControlName="totalAmount" readonly>
+
+                    </div>
+
+
+                    <!-- Remove -->
+                    <div class="item-actions">
+
+                        <button type="button" class="remove-button" (click)="removeItem(i)"
+                            [disabled]="items.length === 1">
+                            Remove
+                        </button>
+
+                    </div>
+
+                </div>
+
+                }
+
+            </div>
+
+        </section>
+
+
+        <!-- Summary -->
+        <section class="form-section summary-section">
+
+            <div class="section-header">
+                <h2>Invoice Summary</h2>
+            </div>
+
+            <div class="summary">
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+
+                    <strong>
+                        ₹{{ invoiceForm.get('subtotal')?.value | number:'1.2-2' }}
+                    </strong>
+                </div>
+
+
+                <div class="summary-row">
+                    <span>Tax</span>
+
+                    <strong>
+                        ₹{{ invoiceForm.get('taxAmount')?.value | number:'1.2-2' }}
+                    </strong>
+                </div>
+
+
+                <div class="summary-row">
+                    <span>Discount</span>
+
+                    <strong>
+                        ₹{{ invoiceForm.get('discountAmount')?.value | number:'1.2-2' }}
+                    </strong>
+                </div>
+
+
+                <div class="summary-row total-row">
+                    <span>Total</span>
+
+                    <strong>
+                        ₹{{ invoiceForm.get('totalAmount')?.value | number:'1.2-2' }}
+                    </strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Notes -->
+        <section class="form-section">
+
+            <div class="section-header">
+                <h2>Notes</h2>
+
+                <p>
+                    Add any additional information about this invoice.
+                </p>
+            </div>
+
+            <div class="form-group">
+
+                <textarea id="notes" formControlName="notes" rows="5" placeholder="Enter notes..."></textarea>
+
+            </div>
+
+        </section>
+
+
+        <!-- Actions -->
+        <div class="form-actions">
+
+            <button type="button" class="cancel-button" (click)="onCancel()" [disabled]="isSubmitting">
+                Cancel
+            </button>
+
+            <button type="submit" class="primary-button" [disabled]="isSubmitting">
+
+                @if (isSubmitting) {
+                Saving...
+                } @else {
+                Save Invoice
+                }
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>

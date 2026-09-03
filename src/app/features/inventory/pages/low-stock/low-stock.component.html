@@ -1,0 +1,268 @@
+<div class="page-container">
+
+    <!-- Header -->
+    <div class="page-header">
+
+        <div>
+            <h1>Low Stock</h1>
+
+            <p>
+                Products that need attention or replenishment.
+            </p>
+        </div>
+
+        <div class="header-actions">
+
+            <a routerLink="/inventory" class="btn btn-outline">
+                Stock Overview
+            </a>
+
+            <a routerLink="/inventory/adjustment" class="btn btn-primary">
+                Stock Adjustment
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Summary -->
+    <div class="summary-grid">
+
+        <div class="summary-card warning">
+
+            <span class="summary-label">
+                Low Stock
+            </span>
+
+            <strong>
+                {{ lowStockItems.length }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card danger">
+
+            <span class="summary-label">
+                Out of Stock
+            </span>
+
+            <strong>
+                {{ outOfStockItems.length }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <span class="summary-label">
+                Total Attention Needed
+            </span>
+
+            <strong>
+                {{ stockItems.length }}
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- Search -->
+    <section class="filter-card">
+
+        <div class="filter-group">
+
+            <label for="search">
+                Search
+            </label>
+
+            <input id="search" type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilter()"
+                placeholder="Search product or SKU">
+
+        </div>
+
+        <button type="button" class="btn btn-outline" (click)="clearSearch()">
+            Clear
+        </button>
+
+    </section>
+
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="state-card">
+
+        Loading low stock items...
+
+    </div>
+
+
+    <!-- Error -->
+    <div *ngIf="!isLoading && errorMessage" class="error-message">
+
+        {{ errorMessage }}
+
+    </div>
+
+
+    <!-- Table -->
+    <section *ngIf="!isLoading && !errorMessage" class="table-card">
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>
+                    Stock Alerts
+                </h2>
+
+                <span>
+                    {{ filteredItems.length }}
+                    {{ filteredItems.length === 1
+                    ? 'product'
+                    : 'products' }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th class="text-right">
+                            Current Stock
+                        </th>
+                        <th class="text-right">
+                            Reorder Level
+                        </th>
+                        <th class="text-right">
+                            Shortage
+                        </th>
+                        <th>Status</th>
+                        <th class="actions-column">
+                            Action
+                        </th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr *ngFor="let item of filteredItems">
+
+                        <td>
+
+                            <div class="product-name">
+                                {{ item.productName }}
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="sku">
+                                {{ item.sku }}
+                            </span>
+
+                        </td>
+
+
+                        <td class="text-right">
+
+                            <span class="quantity" [class.danger-quantity]="
+                  item.quantity === 0
+                ">
+
+                                {{ item.quantity }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td class="text-right">
+
+                            {{ item.reorderLevel }}
+
+                        </td>
+
+
+                        <td class="text-right">
+
+                            <span class="shortage">
+
+                                {{
+                                item.quantity >= item.reorderLevel
+                                ? 0
+                                : item.reorderLevel - item.quantity
+                                }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="status-badge" [ngClass]="
+                  getStatusClass(item.status)
+                ">
+
+                                {{ getStatusLabel(item.status) }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <a routerLink="/inventory/adjustment" class="action-link">
+
+                                Adjust Stock
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+
+                    <!-- Empty -->
+                    <tr *ngIf="filteredItems.length === 0">
+
+                        <td colspan="7" class="empty-state">
+
+                            <strong>
+                                No low stock items found
+                            </strong>
+
+                            <p>
+                                Your current inventory has no matching stock alerts.
+                            </p>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>

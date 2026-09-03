@@ -1,0 +1,288 @@
+<div class="page-container">
+
+    <div class="page-header">
+        <div>
+            <h1>Edit Invoice</h1>
+            <p *ngIf="invoice">
+                {{ invoice.invoiceNumber }}
+            </p>
+        </div>
+
+        <a [routerLink]="['/invoices', invoiceId]" class="btn btn-outline">
+            Back to Details
+        </a>
+    </div>
+
+
+    <div *ngIf="isLoading" class="loading-state">
+        Loading invoice...
+    </div>
+
+
+    <div *ngIf="!isLoading && errorMessage" class="error-message">
+        {{ errorMessage }}
+    </div>
+
+
+    <form *ngIf="!isLoading" [formGroup]="invoiceForm" (ngSubmit)="saveInvoice()">
+
+        <!-- Invoice Information -->
+        <section class="card">
+
+            <div class="card-header">
+                <h2>Invoice Information</h2>
+            </div>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="customerId">
+                        Customer <span>*</span>
+                    </label>
+
+                    <select id="customerId" formControlName="customerId">
+
+                        <option value="">
+                            Select customer
+                        </option>
+
+                        <option *ngFor="let customer of customers" [value]="customer.id">
+                            {{ customer.name }}
+                        </option>
+
+                    </select>
+
+                    <small *ngIf="
+              invoiceForm.get('customerId')?.touched &&
+              invoiceForm.get('customerId')?.invalid
+            ">
+                        Customer is required.
+                    </small>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="invoiceDate">
+                        Invoice Date <span>*</span>
+                    </label>
+
+                    <input id="invoiceDate" type="date" formControlName="invoiceDate">
+                </div>
+
+
+                <div class="form-group">
+                    <label for="dueDate">
+                        Due Date
+                    </label>
+
+                    <input id="dueDate" type="date" formControlName="dueDate">
+                </div>
+
+
+                <div class="form-group">
+                    <label for="status">
+                        Status <span>*</span>
+                    </label>
+
+                    <select id="status" formControlName="status">
+
+                        <option value="draft">Draft</option>
+                        <option value="issued">Issued</option>
+                        <option value="partially-paid">
+                            Partially Paid
+                        </option>
+                        <option value="paid">Paid</option>
+                        <option value="cancelled">
+                            Cancelled
+                        </option>
+
+                    </select>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Items -->
+        <section class="card">
+
+            <div class="card-header">
+                <div>
+                    <h2>Invoice Items</h2>
+                    <p>Add or update products in this invoice.</p>
+                </div>
+
+                <button type="button" class="btn btn-secondary" (click)="addItem()">
+                    + Add Item
+                </button>
+            </div>
+
+
+            <div formArrayName="items" class="items-container">
+
+                <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i" class="item-row">
+
+                    <div class="item-number">
+                        {{ i + 1 }}
+                    </div>
+
+
+                    <div class="form-group product-field">
+                        <label>Product</label>
+
+                        <select formControlName="productId" (change)="onProductChange(i)">
+
+                            <option value="">
+                                Select product
+                            </option>
+
+                            <option *ngFor="let product of products" [value]="product.id">
+                                {{ product.name }}
+                            </option>
+
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>SKU</label>
+
+                        <input type="text" formControlName="sku" readonly>
+                    </div>
+
+
+                    <div class="form-group small-field">
+                        <label>Qty</label>
+
+                        <input type="number" min="1" formControlName="quantity" (input)="calculateItem(i)">
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Unit Price</label>
+
+                        <input type="number" min="0" step="0.01" formControlName="unitPrice" (input)="calculateItem(i)">
+                    </div>
+
+
+                    <div class="form-group small-field">
+                        <label>Tax %</label>
+
+                        <input type="number" min="0" step="0.01" formControlName="taxRate" (input)="calculateItem(i)">
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Discount</label>
+
+                        <input type="number" min="0" step="0.01" formControlName="discountAmount"
+                            (input)="calculateItem(i)">
+                    </div>
+
+
+                    <div class="item-total">
+                        <span>Total</span>
+                        <strong>
+                            ₹{{ item.get('totalAmount')?.value | number:'1.2-2' }}
+                        </strong>
+                    </div>
+
+
+                    <button type="button" class="remove-btn" (click)="removeItem(i)" [disabled]="items.length === 1">
+                        Remove
+                    </button>
+
+                </div>
+
+
+                <div *ngIf="items.length === 0" class="empty-items">
+
+                    <p>No items added.</p>
+
+                    <button type="button" class="btn btn-secondary" (click)="addItem()">
+                        + Add First Item
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Summary -->
+        <section class="summary-card">
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <strong>
+                    ₹{{ subtotal | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Tax</span>
+                <strong>
+                    ₹{{ taxAmount | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Discount</span>
+                <strong>
+                    ₹{{ discountAmount | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="summary-row grand-total">
+                <span>Total</span>
+                <strong>
+                    ₹{{ totalAmount | number:'1.2-2' }}
+                </strong>
+            </div>
+
+        </section>
+
+
+        <!-- Notes -->
+        <section class="card">
+
+            <div class="card-header">
+                <h2>Notes</h2>
+            </div>
+
+            <div class="notes-field">
+                <textarea formControlName="notes" rows="4" placeholder="Enter invoice notes...">
+        </textarea>
+            </div>
+
+        </section>
+
+
+        <!-- Error -->
+        <div *ngIf="errorMessage" class="error-message">
+            {{ errorMessage }}
+        </div>
+
+
+        <!-- Actions -->
+        <div class="form-actions">
+
+            <button type="button" class="btn btn-outline" (click)="cancel()" [disabled]="isSaving">
+                Cancel
+            </button>
+
+            <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+
+                {{ isSaving ? 'Saving...' : 'Save Changes' }}
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>

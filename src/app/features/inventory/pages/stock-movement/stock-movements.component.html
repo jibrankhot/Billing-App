@@ -1,0 +1,286 @@
+<div class="page-container">
+
+    <!-- Header -->
+    <div class="page-header">
+
+        <div>
+            <h1>Stock Movements</h1>
+
+            <p>
+                Track inventory coming in and going out.
+            </p>
+        </div>
+
+        <div class="header-actions">
+
+            <a routerLink="/inventory" class="btn btn-outline">
+                Stock Overview
+            </a>
+
+            <a routerLink="/inventory/adjustment" class="btn btn-primary">
+                Stock Adjustment
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Summary -->
+    <div class="summary-grid">
+
+        <div class="summary-card">
+
+            <span class="summary-label">
+                Total Movements
+            </span>
+
+            <strong>
+                {{ totalMovements }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card incoming">
+
+            <span class="summary-label">
+                Incoming Quantity
+            </span>
+
+            <strong>
+                +{{ incomingQuantity }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card outgoing">
+
+            <span class="summary-label">
+                Outgoing Quantity
+            </span>
+
+            <strong>
+                -{{ outgoingQuantity }}
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- Filters -->
+    <section class="filter-card">
+
+        <div class="filter-group search-group">
+
+            <label for="search">
+                Search
+            </label>
+
+            <input id="search" type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()"
+                placeholder="Search product, SKU or reference">
+
+        </div>
+
+
+        <div class="filter-group">
+
+            <label for="type">
+                Movement Type
+            </label>
+
+            <select id="type" [(ngModel)]="typeFilter" (ngModelChange)="applyFilters()">
+
+                <option value="all">
+                    All
+                </option>
+
+                <option value="purchase">
+                    Purchase
+                </option>
+
+                <option value="sale">
+                    Sale
+                </option>
+
+                <option value="adjustment">
+                    Adjustment
+                </option>
+
+                <option value="return">
+                    Return
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <button type="button" class="btn btn-outline" (click)="clearFilters()">
+
+            Clear
+
+        </button>
+
+    </section>
+
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="state-card">
+
+        Loading stock movements...
+
+    </div>
+
+
+    <!-- Error -->
+    <div *ngIf="!isLoading && errorMessage" class="error-message">
+
+        {{ errorMessage }}
+
+    </div>
+
+
+    <!-- Table -->
+    <section *ngIf="!isLoading && !errorMessage" class="table-card">
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>
+                    Movement History
+                </h2>
+
+                <span>
+                    {{ filteredMovements.length }}
+                    {{ filteredMovements.length === 1
+                    ? 'movement'
+                    : 'movements' }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Date</th>
+                        <th>Product</th>
+                        <th>Type</th>
+                        <th class="text-right">
+                            Quantity
+                        </th>
+                        <th>Reference</th>
+                        <th>Notes</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr *ngFor="
+              let movement of filteredMovements
+            ">
+
+                        <td>
+                            {{ movement.createdAt
+                            | date:'dd MMM yyyy, hh:mm a' }}
+                        </td>
+
+
+                        <td>
+
+                            <div class="product-name">
+                                {{ movement.productName }}
+                            </div>
+
+                            <span class="sku">
+                                {{ movement.sku }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="movement-badge" [ngClass]="
+                  getTypeClass(movement.type)
+                ">
+
+                                {{ getTypeLabel(movement.type) }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td class="text-right">
+
+                            <span class="movement-quantity" [class.quantity-in]="
+                  movement.quantity > 0
+                " [class.quantity-out]="
+                  movement.quantity < 0
+                ">
+
+                                {{ movement.quantity > 0 ? '+' : '' }}
+                                {{ movement.quantity }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="reference">
+                                {{ movement.reference }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+                            {{ movement.notes || '—' }}
+                        </td>
+
+                    </tr>
+
+
+                    <!-- Empty -->
+                    <tr *ngIf="
+              filteredMovements.length === 0
+            ">
+
+                        <td colspan="6" class="empty-state">
+
+                            <strong>
+                                No stock movements found
+                            </strong>
+
+                            <p>
+                                Try changing your search or filter.
+                            </p>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>

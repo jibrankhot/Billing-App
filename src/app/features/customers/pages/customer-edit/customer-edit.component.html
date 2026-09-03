@@ -1,0 +1,269 @@
+<div class="page-container">
+
+    <!-- Header -->
+    <div class="page-header">
+
+        <div>
+            <h1>Edit Customer</h1>
+
+            <p *ngIf="customer">
+                {{ customer.code }} · {{ customer.name }}
+            </p>
+        </div>
+
+        <a [routerLink]="['/customers', customerId]" class="btn btn-outline">
+            Back to Details
+        </a>
+
+    </div>
+
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="state-card">
+        Loading customer...
+    </div>
+
+
+    <!-- Error -->
+    <div *ngIf="!isLoading && errorMessage && !customer" class="error-state">
+
+        <p>{{ errorMessage }}</p>
+
+        <a routerLink="/customers" class="btn btn-outline">
+            Back to Customers
+        </a>
+
+    </div>
+
+
+    <!-- Form -->
+    <form *ngIf="!isLoading && customer" [formGroup]="customerForm" (ngSubmit)="saveCustomer()">
+
+
+        <!-- Basic Information -->
+        <section class="card">
+
+            <div class="card-header">
+                <h2>Basic Information</h2>
+            </div>
+
+            <div class="form-grid">
+
+                <!-- Code -->
+                <div class="form-group">
+
+                    <label for="code">
+                        Customer Code <span>*</span>
+                    </label>
+
+                    <input id="code" type="text" formControlName="code" placeholder="CUS-001">
+
+                    <small *ngIf="
+              customerForm.get('code')?.touched &&
+              customerForm.get('code')?.hasError('required')
+            ">
+                        Customer code is required.
+                    </small>
+
+                    <small *ngIf="
+              customerForm.get('code')?.touched &&
+              customerForm.get('code')?.hasError('maxlength')
+            ">
+                        Customer code cannot exceed 20 characters.
+                    </small>
+
+                </div>
+
+
+                <!-- Name -->
+                <div class="form-group">
+
+                    <label for="name">
+                        Customer Name <span>*</span>
+                    </label>
+
+                    <input id="name" type="text" formControlName="name" placeholder="Enter customer name">
+
+                    <small *ngIf="
+              customerForm.get('name')?.touched &&
+              customerForm.get('name')?.hasError('required')
+            ">
+                        Customer name is required.
+                    </small>
+
+                    <small *ngIf="
+              customerForm.get('name')?.touched &&
+              customerForm.get('name')?.hasError('maxlength')
+            ">
+                        Customer name cannot exceed 100 characters.
+                    </small>
+
+                </div>
+
+
+                <!-- Tax Number -->
+                <div class="form-group">
+
+                    <label for="taxNumber">
+                        Tax Number
+                    </label>
+
+                    <input id="taxNumber" type="text" formControlName="taxNumber" placeholder="Enter tax number">
+
+                </div>
+
+
+                <!-- Status -->
+                <div class="form-group status-group">
+
+                    <label>
+                        Status
+                    </label>
+
+                    <label class="checkbox-label">
+
+                        <input type="checkbox" formControlName="isActive">
+
+                        <span>
+                            Active Customer
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Contact Information -->
+        <section class="card">
+
+            <div class="card-header">
+                <h2>Contact Information</h2>
+            </div>
+
+            <div class="form-grid">
+
+                <!-- Email -->
+                <div class="form-group">
+
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <input id="email" type="email" formControlName="email" placeholder="customer@example.com">
+
+                    <small *ngIf="
+              customerForm.get('email')?.touched &&
+              customerForm.get('email')?.hasError('email')
+            ">
+                        Enter a valid email address.
+                    </small>
+
+                </div>
+
+
+                <!-- Phone -->
+                <div class="form-group">
+
+                    <label for="phone">
+                        Phone
+                    </label>
+
+                    <input id="phone" type="tel" formControlName="phone" placeholder="Enter phone number">
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Address -->
+        <section class="card">
+
+            <div class="card-header">
+                <h2>Address</h2>
+            </div>
+
+            <div class="address-grid">
+
+                <!-- Address -->
+                <div class="form-group full-width">
+
+                    <label for="address">
+                        Address
+                    </label>
+
+                    <textarea id="address" rows="3" formControlName="address" placeholder="Enter customer address">
+          </textarea>
+
+                </div>
+
+
+                <!-- City -->
+                <div class="form-group">
+
+                    <label for="city">
+                        City
+                    </label>
+
+                    <input id="city" type="text" formControlName="city" placeholder="Enter city">
+
+                </div>
+
+
+                <!-- State -->
+                <div class="form-group">
+
+                    <label for="state">
+                        State
+                    </label>
+
+                    <input id="state" type="text" formControlName="state" placeholder="Enter state">
+
+                </div>
+
+
+                <!-- Postal Code -->
+                <div class="form-group">
+
+                    <label for="postalCode">
+                        Postal Code
+                    </label>
+
+                    <input id="postalCode" type="text" formControlName="postalCode" placeholder="Enter postal code">
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Error -->
+        <div *ngIf="errorMessage" class="error-message">
+            {{ errorMessage }}
+        </div>
+
+
+        <!-- Actions -->
+        <div class="form-actions">
+
+            <button type="button" class="btn btn-outline" (click)="cancel()" [disabled]="isSaving">
+                Cancel
+            </button>
+
+            <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+
+                {{ isSaving ? 'Saving...' : 'Save Changes' }}
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>

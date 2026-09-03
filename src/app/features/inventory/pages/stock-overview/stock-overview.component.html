@@ -1,0 +1,321 @@
+<div class="page-container">
+
+    <!-- Header -->
+    <div class="page-header">
+
+        <div>
+            <h1>Stock Overview</h1>
+
+            <p>
+                Monitor current inventory levels and stock value.
+            </p>
+        </div>
+
+        <div class="header-actions">
+
+            <a routerLink="/inventory/low-stock" class="btn btn-outline">
+                Low Stock
+            </a>
+
+            <a routerLink="/inventory/adjustment" class="btn btn-primary">
+                Stock Adjustment
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+
+        <div class="summary-card">
+
+            <span class="summary-label">
+                Products
+            </span>
+
+            <strong>
+                {{ totalProducts }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <span class="summary-label">
+                Total Quantity
+            </span>
+
+            <strong>
+                {{ totalQuantity }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <span class="summary-label">
+                Stock Value
+            </span>
+
+            <strong>
+                ₹{{ totalStockValue | number:'1.2-2' }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card warning">
+
+            <span class="summary-label">
+                Low Stock
+            </span>
+
+            <strong>
+                {{ lowStockCount }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card danger">
+
+            <span class="summary-label">
+                Out of Stock
+            </span>
+
+            <strong>
+                {{ outOfStockCount }}
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- Filters -->
+    <section class="filter-card">
+
+        <div class="filter-group search-group">
+
+            <label for="search">
+                Search
+            </label>
+
+            <input id="search" type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()"
+                placeholder="Search product or SKU">
+
+        </div>
+
+
+        <div class="filter-group">
+
+            <label for="status">
+                Status
+            </label>
+
+            <select id="status" [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
+
+                <option value="all">
+                    All
+                </option>
+
+                <option value="in-stock">
+                    In Stock
+                </option>
+
+                <option value="low-stock">
+                    Low Stock
+                </option>
+
+                <option value="out-of-stock">
+                    Out of Stock
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <button type="button" class="btn btn-outline" (click)="clearFilters()">
+
+            Clear
+
+        </button>
+
+    </section>
+
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="state-card">
+
+        Loading stock information...
+
+    </div>
+
+
+    <!-- Error -->
+    <div *ngIf="!isLoading && errorMessage" class="error-message">
+
+        {{ errorMessage }}
+
+    </div>
+
+
+    <!-- Stock Table -->
+    <section *ngIf="!isLoading && !errorMessage" class="table-card">
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>
+                    Current Stock
+                </h2>
+
+                <span>
+                    {{ filteredStockItems.length }}
+                    {{ filteredStockItems.length === 1
+                    ? 'product'
+                    : 'products' }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th class="text-right">
+                            Quantity
+                        </th>
+                        <th class="text-right">
+                            Reorder Level
+                        </th>
+                        <th class="text-right">
+                            Unit Cost
+                        </th>
+                        <th class="text-right">
+                            Stock Value
+                        </th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr *ngFor="
+              let item of filteredStockItems
+            ">
+
+                        <td>
+
+                            <div class="product-name">
+                                {{ item.productName }}
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="sku">
+                                {{ item.sku }}
+                            </span>
+
+                        </td>
+
+
+                        <td class="text-right">
+
+                            <span class="quantity" [class.quantity-danger]="
+                  item.quantity === 0
+                " [class.quantity-warning]="
+                  item.quantity > 0 &&
+                  item.quantity <= item.reorderLevel
+                ">
+
+                                {{ item.quantity }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td class="text-right">
+
+                            {{ item.reorderLevel }}
+
+                        </td>
+
+
+                        <td class="text-right">
+
+                            ₹{{ item.unitCost | number:'1.2-2' }}
+
+                        </td>
+
+
+                        <td class="text-right stock-value">
+
+                            ₹{{ item.stockValue | number:'1.2-2' }}
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="status-badge" [ngClass]="
+                  getStatusClass(item.status)
+                ">
+
+                                {{ getStatusLabel(item.status) }}
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <!-- Empty -->
+                    <tr *ngIf="
+              filteredStockItems.length === 0
+            ">
+
+                        <td colspan="7" class="empty-state">
+
+                            <strong>
+                                No stock items found
+                            </strong>
+
+                            <p>
+                                Try changing your search or filter.
+                            </p>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>

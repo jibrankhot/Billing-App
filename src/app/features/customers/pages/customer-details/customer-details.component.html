@@ -1,0 +1,293 @@
+<div class="page-container">
+
+    <!-- Header -->
+    <div class="page-header">
+
+        <div>
+            <h1>Customer Details</h1>
+
+            <p *ngIf="customer">
+                {{ customer.code }}
+            </p>
+        </div>
+
+        <div class="header-actions">
+
+            <a routerLink="/customers" class="btn btn-outline">
+                Back to Customers
+            </a>
+
+            <a *ngIf="customer" [routerLink]="['/customers', customer.id, 'edit']" class="btn btn-primary">
+                Edit Customer
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="state-card">
+        Loading customer...
+    </div>
+
+
+    <!-- Error -->
+    <div *ngIf="!isLoading && errorMessage" class="error-state">
+
+        <p>{{ errorMessage }}</p>
+
+        <a routerLink="/customers" class="btn btn-outline">
+            Back to Customers
+        </a>
+
+    </div>
+
+
+    <!-- Customer -->
+    <div *ngIf="!isLoading && customer" class="customer-content">
+
+
+        <!-- Customer Overview -->
+        <section class="card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>
+                        {{ customer.name }}
+                    </h2>
+
+                    <span class="customer-code">
+                        {{ customer.code }}
+                    </span>
+                </div>
+
+                <span class="status-badge" [class.status-active]="customer.isActive"
+                    [class.status-inactive]="!customer.isActive">
+
+                    {{ customer.isActive ? 'Active' : 'Inactive' }}
+
+                </span>
+
+            </div>
+
+
+            <div class="overview-grid">
+
+                <div class="overview-item">
+
+                    <span class="label">
+                        Customer ID
+                    </span>
+
+                    <strong>
+                        {{ customer.id }}
+                    </strong>
+
+                </div>
+
+
+                <div class="overview-item">
+
+                    <span class="label">
+                        Customer Code
+                    </span>
+
+                    <strong>
+                        {{ customer.code }}
+                    </strong>
+
+                </div>
+
+
+                <div class="overview-item">
+
+                    <span class="label">
+                        Status
+                    </span>
+
+                    <strong>
+                        {{ customer.isActive ? 'Active' : 'Inactive' }}
+                    </strong>
+
+                </div>
+
+
+                <div class="overview-item">
+
+                    <span class="label">
+                        Created
+                    </span>
+
+                    <strong>
+                        {{ customer.createdAt | date:'dd MMM yyyy' }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Contact Information -->
+        <section class="card">
+
+            <div class="card-header">
+                <h2>Contact Information</h2>
+            </div>
+
+            <div class="info-grid">
+
+                <div class="info-item">
+
+                    <span class="label">
+                        Email
+                    </span>
+
+                    <span class="value">
+                        {{ customer.email || '—' }}
+                    </span>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="label">
+                        Phone
+                    </span>
+
+                    <span class="value">
+                        {{ customer.phone || '—' }}
+                    </span>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="label">
+                        Tax Number
+                    </span>
+
+                    <span class="value">
+                        {{ customer.taxNumber || '—' }}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Address -->
+        <section class="card">
+
+            <div class="card-header">
+                <h2>Address</h2>
+            </div>
+
+            <div class="address-content">
+
+                <div class="address-line">
+                    {{ customer.address || 'No address provided.' }}
+                </div>
+
+                <div *ngIf="
+            customer.city ||
+            customer.state ||
+            customer.postalCode
+          " class="location">
+
+                    <span *ngIf="customer.city">
+                        {{ customer.city }}
+                    </span>
+
+                    <span *ngIf="
+              customer.city &&
+              customer.state
+            ">
+                        ,
+                    </span>
+
+                    <span *ngIf="customer.state">
+                        {{ customer.state }}
+                    </span>
+
+                    <span *ngIf="customer.postalCode">
+                        - {{ customer.postalCode }}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Record Information -->
+        <section class="card">
+
+            <div class="card-header">
+                <h2>Record Information</h2>
+            </div>
+
+            <div class="info-grid">
+
+                <div class="info-item">
+
+                    <span class="label">
+                        Created At
+                    </span>
+
+                    <span class="value">
+                        {{ customer.createdAt | date:'dd MMM yyyy, hh:mm a' }}
+                    </span>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="label">
+                        Last Updated
+                    </span>
+
+                    <span class="value">
+                        {{ customer.updatedAt | date:'dd MMM yyyy, hh:mm a' }}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Actions -->
+        <div class="bottom-actions">
+
+            <a routerLink="/customers" class="btn btn-outline">
+                Back to Customers
+            </a>
+
+            <div class="action-group">
+
+                <button type="button" class="btn btn-danger" (click)="deleteCustomer()">
+                    Delete Customer
+                </button>
+
+                <a [routerLink]="['/customers', customer.id, 'edit']" class="btn btn-primary">
+                    Edit Customer
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
