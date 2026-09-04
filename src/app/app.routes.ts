@@ -434,7 +434,7 @@ export const routes: Routes = [
                         path: 'movements',
                         loadComponent: () =>
                             import(
-                                './features/inventory/pages/stock-movements/stock-movements.component'
+                                './features/inventory/pages/stock-movement/stock-movements.component'
                             ).then(
                                 m => m.StockMovementsComponent
                             )
@@ -452,7 +452,126 @@ export const routes: Routes = [
                     }
 
                 ]
-            }
+            },
+
+
+            // Sales Orders
+            {
+                path: 'sales-orders',
+                canActivate: [authGuard],
+                children: [
+
+                    // /sales-orders
+                    {
+                        path: '',
+                        loadComponent: () =>
+                            import(
+                                './features/sales/sales-orders/sales-order-list/sales-order-list.component'
+                            ).then(
+                                m => m.SalesOrderListComponent
+                            )
+                    },
+
+                    // /sales-orders/create
+                    {
+                        path: 'create',
+                        loadComponent: () =>
+                            import(
+                                './features/sales/sales-orders/sales-order-create/sales-order-create.component'
+                            ).then(
+                                m => m.SalesOrderCreateComponent
+                            )
+                    },
+
+                    // /sales-orders/:id
+                    {
+                        path: ':id',
+                        loadComponent: () =>
+                            import(
+                                './features/sales/sales-orders/sales-order-details/sales-order-details.component'
+                            ).then(
+                                m => m.SalesOrderDetailsComponent
+                            )
+                    }
+
+                ]
+            },
+
+
+            // Sales Returns
+            {
+                path: 'sales-returns',
+                canActivate: [authGuard],
+                children: [
+
+                    // /sales-returns
+                    {
+                        path: '',
+                        loadComponent: () =>
+                            import(
+                                './features/sales/sales-returns/sales-return-list/sales-return-list.component'
+                            ).then(
+                                m => m.SalesReturnListComponent
+                            )
+                    },
+
+                    // /sales-returns/create
+                    {
+                        path: 'create',
+                        loadComponent: () =>
+                            import(
+                                './features/sales/sales-returns/sales-return-create/sales-return-create.component'
+                            ).then(
+                                m => m.SalesReturnCreateComponent
+                            )
+                    }
+
+                ]
+            },
+
+
+            // Payments
+            {
+                path: 'payments',
+                canActivate: [authGuard],
+                children: [
+
+                    // /payments
+                    {
+                        path: '',
+                        loadComponent: () =>
+                            import(
+                                './features/payments/pages/payment-list/payment-list.component'
+                            ).then(
+                                m => m.PaymentListComponent
+                            )
+                    },
+
+                    // /payments/create
+                    {
+                        path: 'create',
+                        loadComponent: () =>
+                            import(
+                                './features/payments/pages/payment-create/payment-create.component'
+                            ).then(
+                                m => m.PaymentCreateComponent
+                            )
+                    },
+
+                    // /payments/:id
+                    {
+                        path: ':id',
+                        loadComponent: () =>
+                            import(
+                                './features/payments/pages/payment-details/payment-details.component'
+                            ).then(
+                                m => m.PaymentDetailsComponent
+                            )
+                    }
+
+                ]
+            },
+
 
         ]
     },
