@@ -1,0 +1,335 @@
+<div class="page-container">
+
+  <!-- Header -->
+  <div class="page-header">
+
+    <div>
+      <h1>Payments</h1>
+
+      <p>
+        Track customer payments received against invoices.
+      </p>
+    </div>
+
+    <a
+      routerLink="/payments/create"
+      class="btn btn-primary">
+      + Record Payment
+    </a>
+
+  </div>
+
+
+  <!-- Summary -->
+  <div class="summary-grid">
+
+    <div class="summary-card">
+
+      <span class="summary-label">
+        Total Payments
+      </span>
+
+      <strong>
+        {{ totalPayments }}
+      </strong>
+
+    </div>
+
+
+    <div class="summary-card">
+
+      <span class="summary-label">
+        Total Received
+      </span>
+
+      <strong>
+        ₹{{ totalPaymentAmount | number:'1.2-2' }}
+      </strong>
+
+    </div>
+
+
+    <div class="summary-card">
+
+      <span class="summary-label">
+        Average Payment
+      </span>
+
+      <strong>
+        ₹{{ averagePayment | number:'1.2-2' }}
+      </strong>
+
+    </div>
+
+  </div>
+
+
+  <!-- Filters -->
+  <section class="filter-card">
+
+    <div class="filter-group search-group">
+
+      <label for="search">
+        Search
+      </label>
+
+      <input
+        id="search"
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+        placeholder="Payment, invoice, customer or reference">
+
+    </div>
+
+
+    <div class="filter-group">
+
+      <label for="method">
+        Payment Method
+      </label>
+
+      <select
+        id="method"
+        [(ngModel)]="methodFilter"
+        (ngModelChange)="applyFilters()">
+
+        <option value="all">
+          All Methods
+        </option>
+
+        <option value="cash">
+          Cash
+        </option>
+
+        <option value="bank-transfer">
+          Bank Transfer
+        </option>
+
+        <option value="upi">
+          UPI
+        </option>
+
+        <option value="card">
+          Card
+        </option>
+
+        <option value="cheque">
+          Cheque
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="btn btn-outline"
+      (click)="clearFilters()">
+
+      Clear
+
+    </button>
+
+  </section>
+
+
+  <!-- Loading -->
+  <div
+    *ngIf="isLoading"
+    class="state-card">
+
+    Loading payments...
+
+  </div>
+
+
+  <!-- Error -->
+  <div
+    *ngIf="!isLoading && errorMessage"
+    class="error-message">
+
+    {{ errorMessage }}
+
+  </div>
+
+
+  <!-- Table -->
+  <section
+    *ngIf="!isLoading && !errorMessage"
+    class="table-card">
+
+    <div class="table-header">
+
+      <div>
+
+        <h2>
+          Payment History
+        </h2>
+
+        <span>
+          {{ filteredPayments.length }}
+          {{ filteredPayments.length === 1
+            ? 'payment'
+            : 'payments' }}
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Payment</th>
+            <th>Date</th>
+            <th>Invoice</th>
+            <th>Customer</th>
+            <th>Method</th>
+            <th>Reference</th>
+            <th class="text-right">
+              Amount
+            </th>
+            <th>Actions</th>
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <tr
+            *ngFor="
+              let payment of filteredPayments
+            ">
+
+            <td>
+
+              <span class="payment-number">
+                {{ payment.paymentNumber }}
+              </span>
+
+            </td>
+
+
+            <td>
+              {{ payment.paymentDate
+                | date:'dd MMM yyyy' }}
+            </td>
+
+
+            <td>
+
+              <span class="invoice-number">
+                {{ payment.invoiceNumber }}
+              </span>
+
+            </td>
+
+
+            <td>
+
+              <span class="customer-name">
+                {{ payment.customerName }}
+              </span>
+
+            </td>
+
+
+            <td>
+
+              <span
+                class="method-badge"
+                [ngClass]="
+                  getMethodClass(
+                    payment.paymentMethod
+                  )
+                ">
+
+                {{
+                  getMethodLabel(
+                    payment.paymentMethod
+                  )
+                }}
+
+              </span>
+
+            </td>
+
+
+            <td>
+
+              {{ payment.referenceNumber || '—' }}
+
+            </td>
+
+
+            <td class="text-right">
+
+              <span class="amount">
+                ₹{{ payment.amount
+                  | number:'1.2-2' }}
+              </span>
+
+            </td>
+
+
+            <td>
+
+              <div class="actions">
+
+                <a
+                  [routerLink]="[
+                    '/payments',
+                    payment.id
+                  ]"
+                  class="action-link">
+
+                  View
+
+                </a>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+
+          <!-- Empty -->
+          <tr
+            *ngIf="
+              filteredPayments.length === 0
+            ">
+
+            <td
+              colspan="8"
+              class="empty-state">
+
+              <strong>
+                No payments found
+              </strong>
+
+              <p>
+                Try changing your search or filter.
+              </p>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</div>
