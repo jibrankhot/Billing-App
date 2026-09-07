@@ -1,13 +1,5 @@
-import {
-  CommonModule,
-  DecimalPipe
-} from '@angular/common';
-
-import {
-  Component,
-  OnInit
-} from '@angular/core';
-
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -15,19 +7,15 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink
-} from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Invoice } from '../../../../../shared/models/invoice';
 import { Product } from '../../../../../shared/models/product';
-import { InvoiceItem } from '../../../../../shared/models/invoice-item';
+import { SalesReturnService } from '../../services/sales-return.service';
 import { InvoiceService } from '../../../invoices/services/invoice.service';
 import { ProductService } from '../../../../products/services/product.service';
-import { SalesReturnService } from '../../services/sales-return.service';
+import { InvoiceItem } from '../../../../../shared/models/invoice-item';
 import { SalesReturnItem } from '../../../../../shared/models/sales-return-item';
+import { SalesReturn } from '../../../../../shared/models/sales-return';
 
 
 @Component({
@@ -35,146 +23,211 @@ import { SalesReturnItem } from '../../../../../shared/models/sales-return-item'
   standalone: true,
   imports: [
     CommonModule,
-    DecimalPipe,
     ReactiveFormsModule,
     RouterLink
   ],
   templateUrl: './sales-return-create.component.html',
   styleUrl: './sales-return-create.component.scss'
 })
-export class SalesReturnCreateComponent
-  implements OnInit {
+export class SalesReturnCreateComponent implements OnInit {
+
+  returnForm: FormGroup;
 
   invoices: Invoice[] = [];
   products: Product[] = [];
 
-  selectedInvoiceItems: InvoiceItem[] = [];
+  selectedInvoice: Invoice | null = null;
 
-  salesReturnForm: FormGroup;
-
-  isSaving = false;
+  loading = false;
+  saving = false;
   errorMessage = '';
 
   constructor(
     private fb: FormBuilder,
-    private invoiceService: InvoiceService,
-    private productService: ProductService,
-    private salesReturnService: SalesReturnService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private salesReturnService: SalesReturnService,
+    private invoiceService: InvoiceService,
+    private productService: ProductService
   ) {
-    this.salesReturnForm = this.fb.group({
+    this.returnForm = this.fb.group({
       invoiceId: ['', Validators.required],
+
       returnDate: [
-        new Date()
-          .toISOString()
-          .substring(0, 10),
+        new Date().toISOString().split('T')[0],
         Validators.required
       ],
-      reason: ['', Validators.required],
+
+      reason: [
+        '',
+        Validators.required
+      ],
+
       notes: [''],
+
       items: this.fb.array([])
     });
   }
 
   ngOnInit(): void {
+
     this.loadInvoices();
     this.loadProducts();
 
-    const invoiceId =
-      this.route.snapshot.queryParamMap
-        .get('invoiceId');
+    const invoiceId = Number(
+      this.route.snapshot.queryParamMap.get('invoiceId')
+    );
 
     if (invoiceId) {
-      this.salesReturnForm.patchValue({
+
+      this.returnForm.patchValue({
         invoiceId
       });
 
-      this.loadInvoiceItems(Number(invoiceId));
-    }
+      this.loadInvoiceItems(invoiceId);
 
-    this.addItem();
+    } else {
+
+      this.addItem();
+    }
   }
 
   get items(): FormArray {
-    return this.salesReturnForm
-      .get('items') as FormArray;
+    return this.returnForm.get('items') as FormArray;
   }
 
-  loadInvoices(): void {
-    this.invoiceService
-      .getInvoices()
-      .subscribe({
-        next: invoices => {
-          this.invoices =
-            invoices.filter(
-              invoice =>
-                invoice.status !== 'cancelled'
-            );
+  private loadInvoices(): void {
+
+    this.invoiceService.getInvoices().subscribe({
+
+      next: (invoices) => {
+        this.invoices = invoices;
+
+        const invoiceId = Number(
+          this.returnForm.get('invoiceId')?.value
+        );
+
+        if (invoiceId) {
+          this.selectedInvoice =
+            this.invoices.find(
+              invoice => invoice.id === invoiceId
+            ) ?? null;
         }
-      });
+      },
+
+      error: () => {
+        this.errorMessage =
+          'Unable to load invoices.';
+      }
+    });
   }
 
-  loadProducts(): void {
-    this.productService
-      .getProducts()
-      .subscribe({
-        next: products => {
-          this.products = products.filter(
-            product => product.isActive
-          );
-        }
-      });
+  private loadProducts(): void {
+
+    this.productService.getProducts().subscribe({
+
+      next: (products) => {
+        this.products = products;
+      },
+
+      error: () => {
+        this.errorMessage =
+          'Unable to load products.';
+      }
+    });
   }
 
   onInvoiceChange(): void {
+
     const invoiceId = Number(
-      this.salesReturnForm
-        .get('invoiceId')
-        ?.value
+      this.returnForm.get('invoiceId')?.value
     );
+
+    if (!invoiceId) {
+
+      this.selectedInvoice = null;
+
+      this.items.clear();
+
+      this.addItem();
+
+      return;
+    }
 
     this.loadInvoiceItems(invoiceId);
   }
 
-  loadInvoiceItems(invoiceId: number): void {
+  private loadInvoiceItems(invoiceId: number): void {
 
-    if (!invoiceId) {
-      this.selectedInvoiceItems = [];
-      return;
-    }
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.selectedInvoice =
+      this.invoices.find(
+        invoice => invoice.id === invoiceId
+      ) ?? null;
 
     this.invoiceService
       .getInvoiceItems(invoiceId)
       .subscribe({
-        next: items => {
-          this.selectedInvoiceItems = items;
 
-          if (items.length > 0) {
-            this.items.clear();
+        next: (invoiceItems: InvoiceItem[]) => {
 
-            items.forEach(item => {
+          this.items.clear();
+
+          if (invoiceItems.length === 0) {
+
+            this.addItem();
+
+          } else {
+
+            invoiceItems.forEach(item => {
+
               this.items.push(
-                this.createItem(item)
+                this.createItemForm(item)
               );
+
             });
           }
+
+          this.loading = false;
+        },
+
+        error: () => {
+
+          this.errorMessage =
+            'Unable to load invoice items.';
+
+          this.items.clear();
+
+          this.addItem();
+
+          this.loading = false;
         }
       });
   }
 
-  createItem(
-    invoiceItem?: InvoiceItem
+  private createItemForm(
+    item?: InvoiceItem
   ): FormGroup {
 
     return this.fb.group({
+
       productId: [
-        invoiceItem?.productId ?? '',
+        item?.productId ?? '',
         Validators.required
       ],
 
+      productName: [
+        item?.productName ?? ''
+      ],
+
+      sku: [
+        item?.sku ?? ''
+      ],
+
       quantity: [
-        invoiceItem?.quantity ?? 1,
+        item?.quantity ?? 1,
         [
           Validators.required,
           Validators.min(1)
@@ -182,7 +235,7 @@ export class SalesReturnCreateComponent
       ],
 
       unitPrice: [
-        invoiceItem?.unitPrice ?? 0,
+        item?.unitPrice ?? 0,
         [
           Validators.required,
           Validators.min(0)
@@ -190,7 +243,7 @@ export class SalesReturnCreateComponent
       ],
 
       taxRate: [
-        invoiceItem?.taxRate ?? 18,
+        item?.taxRate ?? 0,
         [
           Validators.required,
           Validators.min(0)
@@ -200,8 +253,9 @@ export class SalesReturnCreateComponent
   }
 
   addItem(): void {
+
     this.items.push(
-      this.createItem()
+      this.createItemForm()
     );
   }
 
@@ -214,82 +268,134 @@ export class SalesReturnCreateComponent
     this.items.removeAt(index);
   }
 
-  getItemSubtotal(index: number): number {
+  onProductChange(index: number): void {
 
     const item = this.items.at(index);
 
-    const quantity =
-      Number(
-        item.get('quantity')?.value
-      ) || 0;
+    const productId = Number(
+      item.get('productId')?.value
+    );
 
-    const unitPrice =
-      Number(
-        item.get('unitPrice')?.value
-      ) || 0;
+    const product = this.products.find(
+      product => product.id === productId
+    );
+
+    if (!product) {
+      return;
+    }
+
+    item.patchValue({
+
+      productName: product.name,
+
+      sku: product.sku,
+
+      unitPrice: product.sellingPrice,
+
+      taxRate: product.taxRate
+    });
+  }
+
+  getItemSubtotal(item: FormGroup): number {
+
+    const quantity = Number(
+      item.get('quantity')?.value || 0
+    );
+
+    const unitPrice = Number(
+      item.get('unitPrice')?.value || 0
+    );
 
     return quantity * unitPrice;
   }
 
-  getItemTax(index: number): number {
-
-    const item = this.items.at(index);
+  getItemTax(item: FormGroup): number {
 
     const subtotal =
-      this.getItemSubtotal(index);
+      this.getItemSubtotal(item);
 
-    const taxRate =
-      Number(
-        item.get('taxRate')?.value
-      ) || 0;
+    const taxRate = Number(
+      item.get('taxRate')?.value || 0
+    );
 
     return subtotal * taxRate / 100;
   }
 
-  getItemTotal(index: number): number {
+  getItemTotal(item: FormGroup): number {
+
     return (
-      this.getItemSubtotal(index) +
-      this.getItemTax(index)
+      this.getItemSubtotal(item) +
+      this.getItemTax(item)
     );
   }
 
   get subtotal(): number {
+
     return this.items.controls.reduce(
-      (total, _, index) =>
+      (total, item) =>
         total +
-        this.getItemSubtotal(index),
+        this.getItemSubtotal(
+          item as FormGroup
+        ),
       0
     );
   }
 
   get taxAmount(): number {
+
     return this.items.controls.reduce(
-      (total, _, index) =>
+      (total, item) =>
         total +
-        this.getItemTax(index),
+        this.getItemTax(
+          item as FormGroup
+        ),
       0
     );
   }
 
   get totalAmount(): number {
+
     return this.subtotal +
       this.taxAmount;
   }
 
-  saveReturn(): void {
+  isInvalid(controlName: string): boolean {
 
-    if (this.salesReturnForm.invalid) {
-      this.salesReturnForm.markAllAsTouched();
+    const control =
+      this.returnForm.get(controlName);
+
+    return !!(
+      control &&
+      control.invalid &&
+      (
+        control.dirty ||
+        control.touched
+      )
+    );
+  }
+
+  save(): void {
+
+    if (this.returnForm.invalid) {
+
+      this.returnForm.markAllAsTouched();
+
       return;
     }
 
-    this.isSaving = true;
+    if (this.items.length === 0) {
+
+      this.errorMessage =
+        'Add at least one return item.';
+
+      return;
+    }
+
+    this.saving = true;
     this.errorMessage = '';
 
     const invoiceId = Number(
-      this.salesReturnForm
-        .get('invoiceId')
-        ?.value
+      this.returnForm.get('invoiceId')?.value
     );
 
     const invoice =
@@ -298,100 +404,137 @@ export class SalesReturnCreateComponent
       );
 
     if (!invoice) {
+
       this.errorMessage =
-        'Please select a valid invoice.';
-      this.isSaving = false;
+        'Selected invoice was not found.';
+
+      this.saving = false;
+
       return;
     }
 
-    const returnItems:
-      SalesReturnItem[] =
-      this.items.controls.map(
-        control => {
+    const formValue =
+      this.returnForm.value;
 
-          const productId = Number(
-            control.get('productId')?.value
+    const returnItems: SalesReturnItem[] =
+      this.items.controls.map(
+        (item, index) => {
+
+          const quantity = Number(
+            item.get('quantity')?.value || 0
           );
 
-          const product =
-            this.products.find(
-              item => item.id === productId
-            );
+          const unitPrice = Number(
+            item.get('unitPrice')?.value || 0
+          );
 
-          const index =
-            this.items.controls.indexOf(
-              control
-            );
+          const taxRate = Number(
+            item.get('taxRate')?.value || 0
+          );
+
+          const productId = Number(
+            item.get('productId')?.value
+          );
+
+          const subtotal =
+            quantity * unitPrice;
+
+          const taxAmount =
+            subtotal * taxRate / 100;
 
           return {
+
             id: 0,
+
             salesReturnId: 0,
+
             productId,
+
             productName:
-              product?.name ?? '',
+              item.get('productName')?.value || '',
+
             sku:
-              product?.sku ?? '',
-            quantity: Number(
-              control.get('quantity')?.value
-            ),
-            unitPrice: Number(
-              control.get('unitPrice')?.value
-            ),
-            taxRate: Number(
-              control.get('taxRate')?.value
-            ),
-            taxAmount:
-              this.getItemTax(index),
+              item.get('sku')?.value || '',
+
+            quantity,
+
+            unitPrice,
+
+            taxRate,
+
+            taxAmount,
+
             totalAmount:
-              this.getItemTotal(index)
+              subtotal + taxAmount
           };
         }
       );
 
+    const returnData: Partial<SalesReturn> = {
+
+      invoiceId: invoice.id,
+
+      invoiceNumber:
+        invoice.invoiceNumber,
+
+      customerId:
+        invoice.customerId,
+
+      customerName:
+        invoice.customerName,
+
+      returnDate:
+        formValue.returnDate,
+
+      status: 'draft',
+
+      subtotal:
+        this.subtotal,
+
+      taxAmount:
+        this.taxAmount,
+
+      totalAmount:
+        this.totalAmount,
+
+      reason:
+        formValue.reason,
+
+      notes:
+        formValue.notes
+    };
+
     this.salesReturnService
       .createSalesReturn(
-        {
-          invoiceId: invoice.id,
-          invoiceNumber:
-            invoice.invoiceNumber,
-          customerId:
-            invoice.customerId,
-          customerName:
-            invoice.customerName,
-          returnDate:
-            this.salesReturnForm
-              .get('returnDate')
-              ?.value,
-          status: 'draft',
-          subtotal: this.subtotal,
-          taxAmount: this.taxAmount,
-          totalAmount: this.totalAmount,
-          reason:
-            this.salesReturnForm
-              .get('reason')
-              ?.value,
-          notes:
-            this.salesReturnForm
-              .get('notes')
-              ?.value || ''
-        },
+        returnData,
         returnItems
       )
       .subscribe({
-        next: salesReturn => {
-          this.isSaving = false;
+
+        next: (createdReturn: SalesReturn) => {
+
+          this.saving = false;
 
           this.router.navigate([
             '/sales-returns',
-            salesReturn.id
+            createdReturn.id
           ]);
         },
 
         error: () => {
+
           this.errorMessage =
             'Unable to create sales return.';
-          this.isSaving = false;
+
+          this.saving = false;
         }
       });
+  }
+
+  cancel(): void {
+
+    this.router.navigate([
+      '/sales-returns'
+    ]);
   }
 }

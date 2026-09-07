@@ -1,1 +1,204 @@
-<p>purchase-report works!</p>
+<div class="report-page">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Purchase Report</h1>
+
+            <p>
+                Analyse purchase orders and procurement spending.
+            </p>
+        </div>
+
+        <button type="button" class="btn btn-primary no-print" (click)="printReport()">
+            Print Report
+        </button>
+
+    </div>
+
+
+    <section class="card filters-card no-print">
+
+        <div class="filter-grid">
+
+            <div class="form-field">
+                <label for="fromDate">
+                    From Date
+                </label>
+
+                <input id="fromDate" type="date" [(ngModel)]="fromDate" (change)="applyFilters()" />
+            </div>
+
+
+            <div class="form-field">
+                <label for="toDate">
+                    To Date
+                </label>
+
+                <input id="toDate" type="date" [(ngModel)]="toDate" (change)="applyFilters()" />
+            </div>
+
+
+            <button type="button" class="btn btn-secondary" (click)="resetFilters()">
+                Reset
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <div class="state-card error" *ngIf="!loading && errorMessage">
+        {{ errorMessage }}
+    </div>
+
+
+    <div class="state-card" *ngIf="loading">
+        Loading purchase report...
+    </div>
+
+
+    <ng-container *ngIf="!loading && !errorMessage">
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+                <span>Total Orders</span>
+                <strong>{{ totalOrders }}</strong>
+            </div>
+
+            <div class="summary-card">
+                <span>Total Purchase</span>
+                <strong>
+                    ₹{{ totalPurchase | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div class="summary-card">
+                <span>Total Tax</span>
+                <strong>
+                    ₹{{ totalTax | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div class="summary-card">
+                <span>Ordered</span>
+                <strong>{{ orderedCount }}</strong>
+            </div>
+
+        </section>
+
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>Purchase Transactions</h2>
+
+                <p>
+                    {{ filteredOrders.length }}
+                    purchase order(s) found.
+                </p>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Order Number</th>
+                            <th>Date</th>
+                            <th>Supplier</th>
+                            <th>Status</th>
+                            <th>Subtotal</th>
+                            <th>Tax</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr *ngFor="let order of filteredOrders">
+
+                            <td class="strong">
+                                {{ order.orderNumber }}
+                            </td>
+
+                            <td>
+                                {{ order.orderDate | date:'dd MMM yyyy' }}
+                            </td>
+
+                            <td>
+                                {{ order.supplierName }}
+                            </td>
+
+                            <td>
+                                <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+                                    {{ getStatusLabel(order.status) }}
+                                </span>
+                            </td>
+
+                            <td>
+                                ₹{{ order.subtotal | number:'1.2-2' }}
+                            </td>
+
+                            <td>
+                                ₹{{ order.taxAmount | number:'1.2-2' }}
+                            </td>
+
+                            <td class="strong">
+                                ₹{{ order.totalAmount | number:'1.2-2' }}
+                            </td>
+
+                        </tr>
+
+
+                        <tr *ngIf="filteredOrders.length === 0">
+
+                            <td colspan="7" class="empty-state">
+                                No purchase orders found.
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <section class="card totals-card">
+
+            <div>
+                <span>Total Purchase</span>
+                <strong>
+                    ₹{{ totalPurchase | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div>
+                <span>Draft Orders</span>
+                <strong>
+                    {{ draftCount }}
+                </strong>
+            </div>
+
+            <div>
+                <span>Ordered Orders</span>
+                <strong>
+                    {{ orderedCount }}
+                </strong>
+            </div>
+
+        </section>
+
+    </ng-container>
+
+</div>

@@ -1,1 +1,234 @@
-<p>payment-report works!</p>
+<div class="report-page">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Payment Report</h1>
+
+            <p>
+                Analyse customer payments and collection methods.
+            </p>
+        </div>
+
+        <button type="button" class="btn btn-primary no-print" (click)="printReport()">
+            Print Report
+        </button>
+
+    </div>
+
+
+    <section class="card filters-card no-print">
+
+        <div class="filter-grid">
+
+            <div class="form-field">
+
+                <label for="fromDate">
+                    From Date
+                </label>
+
+                <input id="fromDate" type="date" [(ngModel)]="fromDate" (change)="applyFilters()" />
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="toDate">
+                    To Date
+                </label>
+
+                <input id="toDate" type="date" [(ngModel)]="toDate" (change)="applyFilters()" />
+
+            </div>
+
+
+            <button type="button" class="btn btn-secondary" (click)="resetFilters()">
+                Reset
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <div class="state-card error" *ngIf="!loading && errorMessage">
+        {{ errorMessage }}
+    </div>
+
+
+    <div class="state-card" *ngIf="loading">
+        Loading payment report...
+    </div>
+
+
+    <ng-container *ngIf="!loading && !errorMessage">
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+
+                <span>Total Payments</span>
+
+                <strong>
+                    {{ totalPayments }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>Total Collected</span>
+
+                <strong>
+                    ₹{{ totalAmount | number:'1.2-2' }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>UPI Collection</span>
+
+                <strong>
+                    ₹{{ upiTotal | number:'1.2-2' }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>Bank Transfer</span>
+
+                <strong>
+                    ₹{{ bankTransferTotal | number:'1.2-2' }}
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>Payment Transactions</h2>
+
+                <p>
+                    {{ filteredPayments.length }}
+                    payment(s) found.
+                </p>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Payment Number</th>
+                            <th>Date</th>
+                            <th>Invoice</th>
+                            <th>Customer</th>
+                            <th>Method</th>
+                            <th>Reference</th>
+                            <th>Amount</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr *ngFor="let payment of filteredPayments">
+
+                            <td class="strong">
+                                {{ payment.paymentNumber }}
+                            </td>
+
+                            <td>
+                                {{ payment.paymentDate | date:'dd MMM yyyy' }}
+                            </td>
+
+                            <td>
+                                {{ payment.invoiceNumber }}
+                            </td>
+
+                            <td>
+                                {{ payment.customerName }}
+                            </td>
+
+                            <td>
+                                {{ getPaymentMethodLabel(payment.paymentMethod) }}
+                            </td>
+
+                            <td>
+                                {{ payment.referenceNumber || '—' }}
+                            </td>
+
+                            <td class="strong">
+                                ₹{{ payment.amount | number:'1.2-2' }}
+                            </td>
+
+                        </tr>
+
+
+                        <tr *ngIf="filteredPayments.length === 0">
+
+                            <td colspan="7" class="empty-state">
+                                No payments found.
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <section class="card method-summary">
+
+            <div>
+                <span>Cash</span>
+                <strong>
+                    ₹{{ cashTotal | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div>
+                <span>Card</span>
+                <strong>
+                    ₹{{ cardTotal | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div>
+                <span>UPI</span>
+                <strong>
+                    ₹{{ upiTotal | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div>
+                <span>Bank Transfer</span>
+                <strong>
+                    ₹{{ bankTransferTotal | number:'1.2-2' }}
+                </strong>
+            </div>
+
+        </section>
+
+    </ng-container>
+
+</div>

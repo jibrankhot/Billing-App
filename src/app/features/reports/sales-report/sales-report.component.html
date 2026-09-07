@@ -1,1 +1,248 @@
-<p>sales-report works!</p>
+<div class="report-page">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Sales Report</h1>
+
+            <p>
+                Analyse invoice sales, tax and payment status.
+            </p>
+        </div>
+
+        <button type="button" class="btn btn-primary no-print" (click)="printReport()">
+            Print Report
+        </button>
+
+    </div>
+
+
+    <!-- Filters -->
+    <section class="card filters-card no-print">
+
+        <div class="filter-grid">
+
+            <div class="form-field">
+
+                <label for="fromDate">
+                    From Date
+                </label>
+
+                <input id="fromDate" type="date" [(ngModel)]="fromDate" (change)="applyFilters()" />
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label for="toDate">
+                    To Date
+                </label>
+
+                <input id="toDate" type="date" [(ngModel)]="toDate" (change)="applyFilters()" />
+
+            </div>
+
+
+            <div class="filter-actions">
+
+                <button type="button" class="btn btn-secondary" (click)="resetFilters()">
+                    Reset
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Error -->
+    <div class="state-card error" *ngIf="!loading && errorMessage">
+        {{ errorMessage }}
+    </div>
+
+
+    <!-- Loading -->
+    <div class="state-card" *ngIf="loading">
+        Loading sales report...
+    </div>
+
+
+    <ng-container *ngIf="!loading && !errorMessage">
+
+        <!-- Summary -->
+        <section class="summary-grid">
+
+            <div class="summary-card">
+
+                <span>Total Invoices</span>
+
+                <strong>
+                    {{ totalInvoices }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>Total Sales</span>
+
+                <strong>
+                    ₹{{ totalSales | number:'1.2-2' }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>Total Tax</span>
+
+                <strong>
+                    ₹{{ totalTax | number:'1.2-2' }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>Paid Invoices</span>
+
+                <strong>
+                    {{ paidInvoices }}
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <!-- Report -->
+        <section class="card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Sales Transactions</h2>
+
+                    <p>
+                        {{ filteredInvoices.length }}
+                        invoice(s) found.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Invoice</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Status</th>
+                            <th>Subtotal</th>
+                            <th>Tax</th>
+                            <th>Discount</th>
+                            <th>Total</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr *ngFor="let invoice of filteredInvoices">
+
+                            <td class="strong">
+                                {{ invoice.invoiceNumber }}
+                            </td>
+
+                            <td>
+                                {{ invoice.invoiceDate | date:'dd MMM yyyy' }}
+                            </td>
+
+                            <td>
+                                {{ invoice.customerName }}
+                            </td>
+
+                            <td>
+
+                                <span class="status-badge" [ngClass]="getStatusClass(invoice.status)">
+                                    {{ getStatusLabel(invoice.status) }}
+                                </span>
+
+                            </td>
+
+                            <td>
+                                ₹{{ invoice.subtotal | number:'1.2-2' }}
+                            </td>
+
+                            <td>
+                                ₹{{ invoice.taxAmount | number:'1.2-2' }}
+                            </td>
+
+                            <td>
+                                ₹{{ invoice.discountAmount | number:'1.2-2' }}
+                            </td>
+
+                            <td class="strong">
+                                ₹{{ invoice.totalAmount | number:'1.2-2' }}
+                            </td>
+
+                        </tr>
+
+
+                        <tr *ngIf="filteredInvoices.length === 0">
+
+                            <td colspan="8" class="empty-state">
+                                No sales found for the selected period.
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- Footer totals -->
+        <section class="card totals-card">
+
+            <div>
+                <span>Total Sales</span>
+                <strong>
+                    ₹{{ totalSales | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div>
+                <span>Total Discount</span>
+                <strong>
+                    ₹{{ totalDiscount | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div>
+                <span>Pending Invoices</span>
+                <strong>
+                    {{ pendingInvoices }}
+                </strong>
+            </div>
+
+        </section>
+
+    </ng-container>
+
+</div>

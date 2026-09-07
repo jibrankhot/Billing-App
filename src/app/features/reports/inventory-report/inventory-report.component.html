@@ -1,1 +1,185 @@
-<p>inventory-report works!</p>
+<div class="report-page">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Inventory Report</h1>
+
+            <p>
+                Review current stock levels and inventory valuation.
+            </p>
+        </div>
+
+        <button type="button" class="btn btn-primary no-print" (click)="printReport()">
+            Print Report
+        </button>
+
+    </div>
+
+
+    <div class="state-card error" *ngIf="!loading && errorMessage">
+        {{ errorMessage }}
+    </div>
+
+
+    <div class="state-card" *ngIf="loading">
+        Loading inventory report...
+    </div>
+
+
+    <ng-container *ngIf="!loading && !errorMessage">
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+                <span>Total Products</span>
+                <strong>{{ totalProducts }}</strong>
+            </div>
+
+            <div class="summary-card">
+                <span>Active Products</span>
+                <strong>{{ activeProducts }}</strong>
+            </div>
+
+            <div class="summary-card">
+                <span>Low Stock</span>
+                <strong>{{ getLowStockProducts().length }}</strong>
+            </div>
+
+            <div class="summary-card">
+                <span>Inventory Value</span>
+                <strong>
+                    ₹{{ totalInventoryValue | number:'1.2-2' }}
+                </strong>
+            </div>
+
+        </section>
+
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Stock Position</h2>
+
+                    <p>
+                        Current product inventory.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>SKU</th>
+                            <th>Product</th>
+                            <th>Purchase Price</th>
+                            <th>Selling Price</th>
+                            <th>Current Stock</th>
+                            <th>Reorder Level</th>
+                            <th>Stock Value</th>
+                            <th>Status</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr *ngFor="let product of products">
+
+                            <td class="strong">
+                                {{ product.sku }}
+                            </td>
+
+                            <td>
+                                {{ product.name }}
+                            </td>
+
+                            <td>
+                                ₹{{ product.purchasePrice | number:'1.2-2' }}
+                            </td>
+
+                            <td>
+                                ₹{{ product.sellingPrice | number:'1.2-2' }}
+                            </td>
+
+                            <td class="strong">
+                                {{ product.stockQuantity }}
+                            </td>
+
+                            <td>
+                                {{ product.reorderLevel }}
+                            </td>
+
+                            <td>
+                                ₹{{
+                                product.purchasePrice *
+                                product.stockQuantity
+                                | number:'1.2-2'
+                                }}
+                            </td>
+
+                            <td>
+
+                                <span class="status-badge" [ngClass]="getStockClass(product)">
+                                    {{ getStockLabel(product) }}
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr *ngIf="products.length === 0">
+
+                            <td colspan="8" class="empty-state">
+                                No products found.
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <section class="card totals-card">
+
+            <div>
+                <span>Purchase Value</span>
+                <strong>
+                    ₹{{ totalInventoryValue | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div>
+                <span>Potential Selling Value</span>
+                <strong>
+                    ₹{{ totalSellingValue | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div>
+                <span>Inactive Products</span>
+                <strong>
+                    {{ inactiveProducts }}
+                </strong>
+            </div>
+
+        </section>
+
+    </ng-container>
+
+</div>

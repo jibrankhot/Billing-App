@@ -7,7 +7,10 @@ import { authGuard } from './core/auth/guards/auth.guard';
 
 export const routes: Routes = [
 
+    // =========================================================
     // Default route
+    // =========================================================
+
     {
         path: '',
         redirectTo: 'dashboard',
@@ -15,7 +18,10 @@ export const routes: Routes = [
     },
 
 
+    // =========================================================
     // Authentication routes
+    // =========================================================
+
     {
         path: 'auth',
         component: AuthLayoutComponent,
@@ -47,16 +53,24 @@ export const routes: Routes = [
     },
 
 
+    // =========================================================
     // Main application routes
+    // =========================================================
+
     {
         path: '',
         component: MainLayoutComponent,
+
         children: [
 
+            // =====================================================
             // Dashboard
+            // =====================================================
+
             {
                 path: 'dashboard',
                 canActivate: [authGuard],
+
                 loadComponent: () =>
                     import(
                         './features/dashboard/dashboard.component'
@@ -66,10 +80,14 @@ export const routes: Routes = [
             },
 
 
+            // =====================================================
             // Products
+            // =====================================================
+
             {
                 path: 'products',
                 canActivate: [authGuard],
+
                 children: [
 
                     // /products
@@ -120,10 +138,14 @@ export const routes: Routes = [
             },
 
 
+            // =====================================================
             // Categories
+            // =====================================================
+
             {
                 path: 'categories',
                 canActivate: [authGuard],
+
                 children: [
 
                     // /categories
@@ -174,10 +196,14 @@ export const routes: Routes = [
             },
 
 
+            // =====================================================
             // Suppliers
+            // =====================================================
+
             {
                 path: 'suppliers',
                 canActivate: [authGuard],
+
                 children: [
 
                     // /suppliers
@@ -228,10 +254,14 @@ export const routes: Routes = [
             },
 
 
+            // =====================================================
             // Customers
+            // =====================================================
+
             {
                 path: 'customers',
                 canActivate: [authGuard],
+
                 children: [
 
                     // /customers
@@ -282,10 +312,14 @@ export const routes: Routes = [
             },
 
 
+            // =====================================================
             // Invoices
+            // =====================================================
+
             {
                 path: 'invoices',
                 canActivate: [authGuard],
+
                 children: [
 
                     // /invoices
@@ -347,10 +381,14 @@ export const routes: Routes = [
             },
 
 
+            // =====================================================
             // Purchase Orders
+            // =====================================================
+
             {
                 path: 'purchases',
                 canActivate: [authGuard],
+
                 children: [
 
                     // /purchases
@@ -401,10 +439,14 @@ export const routes: Routes = [
             },
 
 
+            // =====================================================
             // Inventory
+            // =====================================================
+
             {
                 path: 'inventory',
                 canActivate: [authGuard],
+
                 children: [
 
                     // /inventory
@@ -455,10 +497,14 @@ export const routes: Routes = [
             },
 
 
+            // =====================================================
             // Sales Orders
+            // =====================================================
+
             {
                 path: 'sales-orders',
                 canActivate: [authGuard],
+
                 children: [
 
                     // /sales-orders
@@ -498,10 +544,14 @@ export const routes: Routes = [
             },
 
 
+            // =====================================================
             // Sales Returns
+            // =====================================================
+
             {
                 path: 'sales-returns',
                 canActivate: [authGuard],
+
                 children: [
 
                     // /sales-returns
@@ -540,10 +590,15 @@ export const routes: Routes = [
                 ]
             },
 
+
+            // =====================================================
             // Payments
+            // =====================================================
+
             {
                 path: 'payments',
                 canActivate: [authGuard],
+
                 children: [
 
                     // /payments
@@ -583,11 +638,71 @@ export const routes: Routes = [
             },
 
 
+            // =====================================================
+            // Reports
+            // =====================================================
+
+            {
+                path: 'reports',
+                canActivate: [authGuard],
+
+                children: [
+
+                    // /reports/sales
+                    {
+                        path: 'sales',
+                        loadComponent: () =>
+                            import(
+                                './features/reports/sales-report/sales-report.component'
+                            ).then(
+                                m => m.SalesReportComponent
+                            )
+                    },
+
+                    // /reports/purchases
+                    {
+                        path: 'purchases',
+                        loadComponent: () =>
+                            import(
+                                './features/reports/purchase-report/purchase-report.component'
+                            ).then(
+                                m => m.PurchaseReportComponent
+                            )
+                    },
+
+                    // /reports/inventory
+                    {
+                        path: 'inventory',
+                        loadComponent: () =>
+                            import(
+                                './features/reports/inventory-report/inventory-report.component'
+                            ).then(
+                                m => m.InventoryReportComponent
+                            )
+                    },
+
+                    // /reports/payments
+                    {
+                        path: 'payments',
+                        loadComponent: () =>
+                            import(
+                                './features/reports/payment-report/payment-report.component'
+                            ).then(
+                                m => m.PaymentReportComponent
+                            )
+                    }
+
+                ]
+            }
+
         ]
     },
 
 
+    // =========================================================
     // Unknown routes
+    // =========================================================
+
     {
         path: '**',
         redirectTo: 'dashboard'
