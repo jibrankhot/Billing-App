@@ -1,0 +1,226 @@
+<div class="page-container">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Sales Returns</h1>
+
+            <p>
+                Manage products returned by customers.
+            </p>
+        </div>
+
+        <a routerLink="/sales-returns/create" class="btn btn-primary">
+
+            + Create Sales Return
+
+        </a>
+
+    </div>
+
+
+    <div class="summary-grid">
+
+        <div class="summary-card">
+            <span>Total Returns</span>
+            <strong>{{ totalReturns }}</strong>
+        </div>
+
+        <div class="summary-card">
+            <span>Total Return Value</span>
+            <strong>
+                ₹{{ totalValue | number:'1.2-2' }}
+            </strong>
+        </div>
+
+        <div class="summary-card">
+            <span>Completed Returns</span>
+            <strong>{{ completedReturns }}</strong>
+        </div>
+
+    </div>
+
+
+    <div class="filter-card">
+
+        <div class="search-wrapper">
+
+            <label>Search</label>
+
+            <input type="text" [(ngModel)]="searchTerm" (input)="applyFilters()"
+                placeholder="Search return, invoice or customer..." />
+
+        </div>
+
+
+        <div class="filter-wrapper">
+
+            <label>Status</label>
+
+            <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+
+                <option value="">
+                    All Statuses
+                </option>
+
+                <option value="draft">
+                    Draft
+                </option>
+
+                <option value="approved">
+                    Approved
+                </option>
+
+                <option value="completed">
+                    Completed
+                </option>
+
+                <option value="cancelled">
+                    Cancelled
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <button type="button" class="btn btn-outline" (click)="clearFilters()">
+
+            Clear
+
+        </button>
+
+    </div>
+
+
+    <div *ngIf="isLoading" class="state-card">
+
+        Loading sales returns...
+
+    </div>
+
+
+    <div *ngIf="!isLoading && errorMessage" class="error-message">
+
+        {{ errorMessage }}
+
+        <button type="button" class="btn btn-outline" (click)="loadSalesReturns()">
+
+            Retry
+
+        </button>
+
+    </div>
+
+
+    <div *ngIf="
+      !isLoading &&
+      !errorMessage &&
+      filteredReturns.length === 0
+    " class="state-card">
+
+        No sales returns found.
+
+    </div>
+
+
+    <div *ngIf="
+      !isLoading &&
+      !errorMessage &&
+      filteredReturns.length > 0
+    " class="table-card">
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Return Number</th>
+                        <th>Invoice</th>
+                        <th>Customer</th>
+                        <th>Return Date</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr *ngFor="
+              let salesReturn of filteredReturns
+            ">
+
+                        <td>
+                            <strong>
+                                {{ salesReturn.returnNumber }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ salesReturn.invoiceNumber }}
+                        </td>
+
+                        <td>
+                            {{ salesReturn.customerName }}
+                        </td>
+
+                        <td>
+                            {{
+                            salesReturn.returnDate
+                            | date:'dd MMM yyyy'
+                            }}
+                        </td>
+
+                        <td>
+
+                            <span class="status-badge" [ngClass]="
+                  getStatusClass(
+                    salesReturn.status
+                  )
+                ">
+
+                                {{
+                                getStatusLabel(
+                                salesReturn.status
+                                )
+                                }}
+
+                            </span>
+
+                        </td>
+
+                        <td>
+                            <strong>
+                                ₹{{
+                                salesReturn.totalAmount
+                                | number:'1.2-2'
+                                }}
+                            </strong>
+                        </td>
+
+                        <td>
+
+                            <a [routerLink]="[
+                  '/sales-returns',
+                  salesReturn.id
+                ]" class="view-link">
+
+                                View
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

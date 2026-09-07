@@ -1,0 +1,251 @@
+<div class="page-container">
+
+    <!-- Header -->
+    <div class="page-header">
+
+        <div>
+            <button type="button" class="back-button" (click)="goBack()">
+                ← Back to Sales Returns
+            </button>
+
+            <h1>Sales Return Details</h1>
+
+            <p *ngIf="salesReturn">
+                View complete information about
+                {{ salesReturn.returnNumber }}.
+            </p>
+        </div>
+
+        <div class="header-actions" *ngIf="salesReturn">
+            <a routerLink="/sales-returns" class="btn btn-secondary">
+                Back to List
+            </a>
+        </div>
+
+    </div>
+
+
+    <!-- Loading -->
+    <div class="state-card" *ngIf="loading">
+        <p>Loading sales return...</p>
+    </div>
+
+
+    <!-- Error -->
+    <div class="state-card error" *ngIf="!loading && errorMessage">
+        <h3>Unable to load sales return</h3>
+        <p>{{ errorMessage }}</p>
+
+        <button type="button" class="btn btn-secondary" (click)="goBack()">
+            Back to Sales Returns
+        </button>
+    </div>
+
+
+    <!-- Details -->
+    <div class="details-content" *ngIf="!loading && salesReturn">
+
+        <!-- Return Summary -->
+        <section class="card">
+
+            <div class="card-header">
+                <div>
+                    <h2>{{ salesReturn.returnNumber }}</h2>
+                    <p>Sales Return Information</p>
+                </div>
+
+                <span class="status-badge" [ngClass]="getStatusClass(salesReturn.status)">
+                    {{ getStatusLabel(salesReturn.status) }}
+                </span>
+            </div>
+
+
+            <div class="details-grid">
+
+                <div class="detail-item">
+                    <span class="label">Return Number</span>
+                    <span class="value">
+                        {{ salesReturn.returnNumber }}
+                    </span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="label">Invoice Number</span>
+                    <span class="value">
+                        {{ salesReturn.invoiceNumber }}
+                    </span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="label">Customer</span>
+                    <span class="value">
+                        {{ salesReturn.customerName }}
+                    </span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="label">Return Date</span>
+                    <span class="value">
+                        {{ salesReturn.returnDate | date:'dd MMM yyyy' }}
+                    </span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="label">Reason</span>
+                    <span class="value">
+                        {{ salesReturn.reason || '—' }}
+                    </span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="label">Created At</span>
+                    <span class="value">
+                        {{ salesReturn.createdAt | date:'dd MMM yyyy, hh:mm a' }}
+                    </span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Returned Items -->
+        <section class="card">
+
+            <div class="card-header">
+                <div>
+                    <h2>Returned Items</h2>
+                    <p>Products included in this return</p>
+                </div>
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Tax</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr *ngFor="let item of items; let i = index">
+
+                            <td>
+                                {{ i + 1 }}
+                            </td>
+
+                            <td>
+                                <div class="product-name">
+                                    {{ item.productName }}
+                                </div>
+                            </td>
+
+                            <td>
+                                {{ item.sku }}
+                            </td>
+
+                            <td>
+                                {{ item.quantity }}
+                            </td>
+
+                            <td>
+                                ₹{{ item.unitPrice | number:'1.2-2' }}
+                            </td>
+
+                            <td>
+                                ₹{{ item.taxAmount | number:'1.2-2' }}
+                            </td>
+
+                            <td class="amount">
+                                ₹{{ item.totalAmount | number:'1.2-2' }}
+                            </td>
+
+                        </tr>
+
+
+                        <!-- Empty items -->
+                        <tr *ngIf="items.length === 0">
+
+                            <td colspan="7" class="empty-state">
+                                No return items found.
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- Financial Summary -->
+        <section class="card summary-card">
+
+            <div class="card-header">
+                <div>
+                    <h2>Return Summary</h2>
+                    <p>Financial breakdown</p>
+                </div>
+            </div>
+
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+
+                <strong>
+                    ₹{{ salesReturn.subtotal | number:'1.2-2' }}
+                </strong>
+            </div>
+
+
+            <div class="summary-row">
+                <span>Tax</span>
+
+                <strong>
+                    ₹{{ salesReturn.taxAmount | number:'1.2-2' }}
+                </strong>
+            </div>
+
+
+            <div class="summary-row total-row">
+                <span>Total Return Amount</span>
+
+                <strong>
+                    ₹{{ salesReturn.totalAmount | number:'1.2-2' }}
+                </strong>
+            </div>
+
+        </section>
+
+
+        <!-- Notes -->
+        <section class="card" *ngIf="salesReturn.notes">
+
+            <div class="card-header">
+                <div>
+                    <h2>Notes</h2>
+                </div>
+            </div>
+
+            <p class="notes">
+                {{ salesReturn.notes }}
+            </p>
+
+        </section>
+
+    </div>
+
+</div>

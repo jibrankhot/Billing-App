@@ -1,0 +1,252 @@
+<div class="page-container">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Create Sales Return</h1>
+
+            <p>
+                Record products returned by a customer.
+            </p>
+        </div>
+
+        <a routerLink="/sales-returns" class="btn btn-outline">
+
+            ← Back to Sales Returns
+
+        </a>
+
+    </div>
+
+
+    <form [formGroup]="salesReturnForm" (ngSubmit)="saveReturn()">
+
+
+        <section class="form-card">
+
+            <div class="card-header">
+                <h2>Return Information</h2>
+            </div>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Invoice <span>*</span>
+                    </label>
+
+                    <select formControlName="invoiceId" (change)="onInvoiceChange()">
+
+                        <option value="">
+                            Select Invoice
+                        </option>
+
+                        <option *ngFor="let invoice of invoices" [value]="invoice.id">
+
+                            {{ invoice.invoiceNumber }}
+                            —
+                            {{ invoice.customerName }}
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Return Date <span>*</span>
+                    </label>
+
+                    <input type="date" formControlName="returnDate" />
+
+                </div>
+
+
+                <div class="form-group full-width">
+
+                    <label>
+                        Reason <span>*</span>
+                    </label>
+
+                    <input type="text" formControlName="reason" placeholder="Enter return reason..." />
+
+                </div>
+
+
+                <div class="form-group full-width">
+
+                    <label>Notes</label>
+
+                    <textarea rows="3" formControlName="notes" placeholder="Enter additional notes...">
+          </textarea>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="form-card">
+
+            <div class="card-header order-items-header">
+
+                <h2>Returned Items</h2>
+
+                <button type="button" class="btn btn-outline" (click)="addItem()">
+
+                    + Add Item
+
+                </button>
+
+            </div>
+
+
+            <div class="items-container" formArrayName="items">
+
+                <div class="item-row" *ngFor="
+            let item of items.controls;
+            let i = index
+          " [formGroupName]="i">
+
+
+                    <div class="item-field product-field">
+
+                        <label>Product</label>
+
+                        <select formControlName="productId">
+
+                            <option value="">
+                                Select Product
+                            </option>
+
+                            <option *ngFor="let product of products" [value]="product.id">
+
+                                {{ product.name }}
+                                ({{ product.sku }})
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="item-field">
+
+                        <label>Quantity</label>
+
+                        <input type="number" min="1" formControlName="quantity" />
+
+                    </div>
+
+
+                    <div class="item-field">
+
+                        <label>Unit Price</label>
+
+                        <input type="number" min="0" formControlName="unitPrice" />
+
+                    </div>
+
+
+                    <div class="item-field">
+
+                        <label>Tax %</label>
+
+                        <input type="number" min="0" formControlName="taxRate" />
+
+                    </div>
+
+
+                    <div class="item-total">
+
+                        <span>Total</span>
+
+                        <strong>
+                            ₹{{
+                            getItemTotal(i)
+                            | number:'1.2-2'
+                            }}
+                        </strong>
+
+                    </div>
+
+
+                    <button type="button" class="remove-button" [disabled]="items.length === 1" (click)="removeItem(i)">
+
+                        Remove
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="summary-card">
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+
+                <strong>
+                    ₹{{ subtotal | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Tax</span>
+
+                <strong>
+                    ₹{{ taxAmount | number:'1.2-2' }}
+                </strong>
+            </div>
+
+            <div class="summary-row total-row">
+                <span>Total</span>
+
+                <strong>
+                    ₹{{ totalAmount | number:'1.2-2' }}
+                </strong>
+            </div>
+
+        </section>
+
+
+        <div *ngIf="errorMessage" class="error-message">
+
+            {{ errorMessage }}
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <a routerLink="/sales-returns" class="btn btn-outline">
+
+                Cancel
+
+            </a>
+
+            <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+
+                {{
+                isSaving
+                ? 'Saving...'
+                : 'Create Sales Return'
+                }}
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>

@@ -466,7 +466,7 @@ export const routes: Routes = [
                         path: '',
                         loadComponent: () =>
                             import(
-                                './features/sales/sales-orders/sales-order-list/sales-order-list.component'
+                                './features/sales/sales-orders/pages/sales-order-list/sales-order-list.component'
                             ).then(
                                 m => m.SalesOrderListComponent
                             )
@@ -477,7 +477,7 @@ export const routes: Routes = [
                         path: 'create',
                         loadComponent: () =>
                             import(
-                                './features/sales/sales-orders/sales-order-create/sales-order-create.component'
+                                './features/sales/sales-orders/pages/sales-order-create/sales-order-create.component'
                             ).then(
                                 m => m.SalesOrderCreateComponent
                             )
@@ -488,7 +488,7 @@ export const routes: Routes = [
                         path: ':id',
                         loadComponent: () =>
                             import(
-                                './features/sales/sales-orders/sales-order-details/sales-order-details.component'
+                                './features/sales/sales-orders/pages/sales-order-details/sales-order-details.component'
                             ).then(
                                 m => m.SalesOrderDetailsComponent
                             )
@@ -509,7 +509,7 @@ export const routes: Routes = [
                         path: '',
                         loadComponent: () =>
                             import(
-                                './features/sales/sales-returns/sales-return-list/sales-return-list.component'
+                                './features/sales/sales-returns/pages/sales-return-list/sales-return-list.component'
                             ).then(
                                 m => m.SalesReturnListComponent
                             )
@@ -520,15 +520,25 @@ export const routes: Routes = [
                         path: 'create',
                         loadComponent: () =>
                             import(
-                                './features/sales/sales-returns/sales-return-create/sales-return-create.component'
+                                './features/sales/sales-returns/pages/sales-return-create/sales-return-create.component'
                             ).then(
                                 m => m.SalesReturnCreateComponent
+                            )
+                    },
+
+                    // /sales-returns/:id
+                    {
+                        path: ':id',
+                        loadComponent: () =>
+                            import(
+                                './features/sales/sales-returns/pages/sales-return-details/sales-return-details.component'
+                            ).then(
+                                m => m.SalesReturnDetailsComponent
                             )
                     }
 
                 ]
             },
-
 
             // Payments
             {
