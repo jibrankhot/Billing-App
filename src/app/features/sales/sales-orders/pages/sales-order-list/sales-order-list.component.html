@@ -1,0 +1,185 @@
+<div class="page-container">
+
+  <div class="page-header">
+
+    <div>
+      <h1>Sales Orders</h1>
+
+      <p>
+        Manage customer orders before they are converted into invoices.
+      </p>
+    </div>
+
+    <a
+      routerLink="/sales-orders/create"
+      class="btn btn-primary">
+      + Create Sales Order
+    </a>
+
+  </div>
+
+
+  <div class="summary-grid">
+
+    <div class="summary-card">
+      <span>Total Orders</span>
+      <strong>{{ totalOrders }}</strong>
+    </div>
+
+    <div class="summary-card">
+      <span>Total Value</span>
+      <strong>₹{{ totalValue | number:'1.2-2' }}</strong>
+    </div>
+
+    <div class="summary-card">
+      <span>Pending Orders</span>
+      <strong>{{ pendingOrders }}</strong>
+    </div>
+
+  </div>
+
+
+  <div class="filter-card">
+
+    <div class="search-wrapper">
+      <label>Search</label>
+
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="applyFilters()"
+        placeholder="Search order number or customer..." />
+    </div>
+
+    <div class="filter-wrapper">
+      <label>Status</label>
+
+      <select
+        [(ngModel)]="selectedStatus"
+        (change)="applyFilters()">
+
+        <option value="">All Statuses</option>
+        <option value="draft">Draft</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="processing">Processing</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+
+      </select>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-outline"
+      (click)="clearFilters()">
+      Clear
+    </button>
+
+  </div>
+
+
+  <div *ngIf="isLoading" class="state-card">
+    Loading sales orders...
+  </div>
+
+
+  <div
+    *ngIf="!isLoading && errorMessage"
+    class="error-message">
+
+    {{ errorMessage }}
+
+    <button
+      type="button"
+      class="btn btn-outline"
+      (click)="loadSalesOrders()">
+      Retry
+    </button>
+
+  </div>
+
+
+  <div
+    *ngIf="!isLoading && !errorMessage && filteredOrders.length === 0"
+    class="state-card">
+
+    No sales orders found.
+
+  </div>
+
+
+  <div
+    *ngIf="!isLoading && !errorMessage && filteredOrders.length > 0"
+    class="table-card">
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Order Number</th>
+            <th>Customer</th>
+            <th>Order Date</th>
+            <th>Expected Delivery</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let order of filteredOrders">
+
+            <td>
+              <strong>{{ order.orderNumber }}</strong>
+            </td>
+
+            <td>
+              {{ order.customerName }}
+            </td>
+
+            <td>
+              {{ order.orderDate | date:'dd MMM yyyy' }}
+            </td>
+
+            <td>
+              {{ order.expectedDeliveryDate
+                ? (order.expectedDeliveryDate | date:'dd MMM yyyy')
+                : '—' }}
+            </td>
+
+            <td>
+              <span
+                class="status-badge"
+                [ngClass]="getStatusClass(order.status)">
+                {{ getStatusLabel(order.status) }}
+              </span>
+            </td>
+
+            <td>
+              <strong>
+                ₹{{ order.totalAmount | number:'1.2-2' }}
+              </strong>
+            </td>
+
+            <td>
+              <a
+                [routerLink]="['/sales-orders', order.id]"
+                class="view-link">
+                View
+              </a>
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>

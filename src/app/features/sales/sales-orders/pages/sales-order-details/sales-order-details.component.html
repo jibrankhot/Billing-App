@@ -1,0 +1,247 @@
+<div class="page-container">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Sales Order Details</h1>
+
+            <p>
+                View customer order and item information.
+            </p>
+        </div>
+
+        <a routerLink="/sales-orders" class="btn btn-outline">
+            ← Back to Sales Orders
+        </a>
+
+    </div>
+
+
+    <div *ngIf="isLoading" class="state-card">
+
+        Loading sales order...
+
+    </div>
+
+
+    <div *ngIf="!isLoading && errorMessage" class="error-message">
+
+        {{ errorMessage }}
+
+        <div>
+            <a routerLink="/sales-orders" class="btn btn-outline">
+                Back to Sales Orders
+            </a>
+        </div>
+
+    </div>
+
+
+    <div *ngIf="!isLoading && !errorMessage && salesOrder" class="details-content">
+
+
+        <section class="details-card">
+
+            <div class="card-header">
+
+                <div>
+                    <span class="card-label">
+                        Sales Order
+                    </span>
+
+                    <h2>
+                        {{ salesOrder.orderNumber }}
+                    </h2>
+                </div>
+
+                <span class="status-badge" [ngClass]="getStatusClass(salesOrder.status)">
+
+                    {{ getStatusLabel(salesOrder.status) }}
+
+                </span>
+
+            </div>
+
+
+            <div class="summary-grid">
+
+                <div class="summary-item">
+                    <span>Customer</span>
+                    <strong>{{ salesOrder.customerName }}</strong>
+                </div>
+
+                <div class="summary-item">
+                    <span>Order Date</span>
+                    <strong>
+                        {{ salesOrder.orderDate | date:'dd MMM yyyy' }}
+                    </strong>
+                </div>
+
+                <div class="summary-item">
+                    <span>Expected Delivery</span>
+                    <strong>
+                        {{
+                        salesOrder.expectedDeliveryDate
+                        ? (salesOrder.expectedDeliveryDate | date:'dd MMM yyyy')
+                        : '—'
+                        }}
+                    </strong>
+                </div>
+
+                <div class="summary-item">
+                    <span>Total Amount</span>
+                    <strong class="amount">
+                        ₹{{ salesOrder.totalAmount | number:'1.2-2' }}
+                    </strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="details-card">
+
+            <div class="card-header">
+                <h2>Order Items</h2>
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Tax</th>
+                            <th>Discount</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr *ngFor="let item of items">
+
+                            <td>
+                                <strong>{{ item.productName }}</strong>
+                            </td>
+
+                            <td>
+                                {{ item.sku }}
+                            </td>
+
+                            <td>
+                                {{ item.quantity }}
+                            </td>
+
+                            <td>
+                                ₹{{ item.unitPrice | number:'1.2-2' }}
+                            </td>
+
+                            <td>
+                                ₹{{ item.taxAmount | number:'1.2-2' }}
+                            </td>
+
+                            <td>
+                                ₹{{ item.discountAmount | number:'1.2-2' }}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    ₹{{ item.totalAmount | number:'1.2-2' }}
+                                </strong>
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <section class="details-card">
+
+            <div class="card-header">
+                <h2>Order Summary</h2>
+            </div>
+
+            <div class="order-summary">
+
+                <div>
+                    <span>Subtotal</span>
+                    <strong>
+                        ₹{{ salesOrder.subtotal | number:'1.2-2' }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Discount</span>
+                    <strong>
+                        ₹{{ salesOrder.discountAmount | number:'1.2-2' }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Tax</span>
+                    <strong>
+                        ₹{{ salesOrder.taxAmount | number:'1.2-2' }}
+                    </strong>
+                </div>
+
+                <div class="grand-total">
+                    <span>Total</span>
+                    <strong>
+                        ₹{{ salesOrder.totalAmount | number:'1.2-2' }}
+                    </strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="details-card">
+
+            <div class="card-header">
+                <h2>Notes</h2>
+            </div>
+
+            <div class="notes">
+
+                <p *ngIf="salesOrder.notes">
+                    {{ salesOrder.notes }}
+                </p>
+
+                <p *ngIf="!salesOrder.notes" class="no-notes">
+
+                    No notes available.
+
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <div class="page-actions">
+
+            <a routerLink="/sales-orders" class="btn btn-outline">
+
+                Back to Sales Orders
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

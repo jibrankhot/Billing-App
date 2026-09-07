@@ -1,1 +1,316 @@
-<p>payment-details works!</p>
+<div class="page-container">
+
+    <!-- Header -->
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+                Payment Details
+            </h1>
+
+            <p>
+                View payment information and transaction details.
+            </p>
+
+        </div>
+
+        <a routerLink="/payments" class="btn btn-outline">
+
+            ← Back to Payments
+
+        </a>
+
+    </div>
+
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="state-card">
+
+        Loading payment...
+
+    </div>
+
+
+    <!-- Error -->
+    <div *ngIf="!isLoading && errorMessage" class="error-message">
+
+        {{ errorMessage }}
+
+        <div class="error-action">
+
+            <a routerLink="/payments" class="btn btn-outline">
+
+                Back to Payments
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Payment Details -->
+    <div *ngIf="!isLoading && !errorMessage && payment" class="details-content">
+
+
+        <!-- Payment Summary -->
+        <section class="details-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <span class="card-label">
+                        Payment
+                    </span>
+
+                    <h2>
+                        {{ payment.paymentNumber }}
+                    </h2>
+
+                </div>
+
+                <span class="method-badge" [ngClass]="
+            getMethodClass(
+              payment.paymentMethod
+            )
+          ">
+
+                    {{
+                    getMethodLabel(
+                    payment.paymentMethod
+                    )
+                    }}
+
+                </span>
+
+            </div>
+
+
+            <div class="summary-grid">
+
+                <div class="summary-item">
+
+                    <span class="label">
+                        Payment Date
+                    </span>
+
+                    <strong>
+                        {{ payment.paymentDate
+                        | date:'dd MMM yyyy' }}
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span class="label">
+                        Amount
+                    </span>
+
+                    <strong class="amount">
+                        ₹{{ payment.amount
+                        | number:'1.2-2' }}
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span class="label">
+                        Invoice
+                    </span>
+
+                    <strong class="invoice-number">
+                        {{ payment.invoiceNumber }}
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span class="label">
+                        Customer
+                    </span>
+
+                    <strong>
+                        {{ payment.customerName }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Payment Information -->
+        <section class="details-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Payment Information
+                    </h2>
+
+                    <span>
+                        Transaction and reference details
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="info-grid">
+
+                <div class="info-item">
+
+                    <span class="label">
+                        Payment Number
+                    </span>
+
+                    <span class="value">
+                        {{ payment.paymentNumber }}
+                    </span>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="label">
+                        Invoice Number
+                    </span>
+
+                    <span class="value">
+                        {{ payment.invoiceNumber }}
+                    </span>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="label">
+                        Invoice ID
+                    </span>
+
+                    <span class="value">
+                        {{ payment.invoiceId }}
+                    </span>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="label">
+                        Payment Method
+                    </span>
+
+                    <span class="value">
+
+                        <span class="method-badge" [ngClass]="
+                getMethodClass(
+                  payment.paymentMethod
+                )
+              ">
+
+                            {{
+                            getMethodLabel(
+                            payment.paymentMethod
+                            )
+                            }}
+
+                        </span>
+
+                    </span>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="label">
+                        Reference Number
+                    </span>
+
+                    <span class="value">
+                        {{ payment.referenceNumber || '—' }}
+                    </span>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="label">
+                        Created At
+                    </span>
+
+                    <span class="value">
+                        {{ payment.createdAt
+                        | date:'dd MMM yyyy, hh:mm a' }}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Notes -->
+        <section class="details-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Notes
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="notes">
+
+                <p *ngIf="payment.notes">
+                    {{ payment.notes }}
+                </p>
+
+                <p *ngIf="!payment.notes" class="no-notes">
+
+                    No notes available.
+
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- Actions -->
+        <div class="page-actions">
+
+            <a routerLink="/payments" class="btn btn-outline">
+
+                Back to Payments
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
