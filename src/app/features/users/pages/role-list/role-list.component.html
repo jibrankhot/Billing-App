@@ -1,0 +1,153 @@
+<div class="page-container">
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>Roles</h1>
+
+            <p>
+                Manage user roles and access responsibilities.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <section class="summary-grid">
+
+        <div class="summary-card">
+
+            <span>Total Roles</span>
+
+            <strong>
+                {{ roles.length }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <span>Active Roles</span>
+
+            <strong>
+                {{ activeRoles }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <span>Inactive Roles</span>
+
+            <strong>
+                {{ inactiveRoles }}
+            </strong>
+
+        </div>
+
+    </section>
+
+
+    <section class="card">
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>Role List</h2>
+
+                <p>
+                    Available roles in Stockly.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Role</th>
+
+                        <th>Description</th>
+
+                        <th>Users</th>
+
+                        <th>Status</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr *ngFor="let role of roles">
+
+                        <td class="strong">
+                            {{ role.name }}
+                        </td>
+
+                        <td>
+                            {{ role.description }}
+                        </td>
+
+                        <td>
+                            {{ role.userCount }}
+                        </td>
+
+                        <td>
+
+                            <span class="status-badge" [ngClass]="
+                                    role.isActive
+                                        ? 'status-active'
+                                        : 'status-inactive'
+                                ">
+
+                                {{
+                                role.isActive
+                                ? 'Active'
+                                : 'Inactive'
+                                }}
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <button type="button" class="action-link" (click)="toggleStatus(role)">
+
+                                {{
+                                role.isActive
+                                ? 'Deactivate'
+                                : 'Activate'
+                                }}
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>

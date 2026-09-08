@@ -1,0 +1,245 @@
+<div class="page-container">
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>Users</h1>
+
+            <p>
+                Manage users who can access Stockly.
+            </p>
+
+        </div>
+
+        <a routerLink="/users/create" class="btn btn-primary">
+            + Add User
+        </a>
+
+    </div>
+
+
+    <!-- Summary -->
+
+    <section class="summary-grid">
+
+        <div class="summary-card">
+
+            <span>Total Users</span>
+
+            <strong>
+                {{ totalUsers }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <span>Active Users</span>
+
+            <strong>
+                {{ activeUsers }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <span>Inactive Users</span>
+
+            <strong>
+                {{ inactiveUsers }}
+            </strong>
+
+        </div>
+
+    </section>
+
+
+    <!-- Filters -->
+
+    <section class="filter-card">
+
+        <div class="filter-group search-group">
+
+            <label>
+                Search
+            </label>
+
+            <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()"
+                placeholder="Search username, name, email or role..." />
+
+        </div>
+
+
+        <div class="filter-group">
+
+            <label>
+                Status
+            </label>
+
+            <select [(ngModel)]="selectedStatus" (change)="onStatusChange()">
+
+                <option value="all">
+                    All Users
+                </option>
+
+                <option value="active">
+                    Active
+                </option>
+
+                <option value="inactive">
+                    Inactive
+                </option>
+
+            </select>
+
+        </div>
+
+    </section>
+
+
+    <!-- Error -->
+
+    <div *ngIf="errorMessage" class="state-card error">
+        {{ errorMessage }}
+    </div>
+
+
+    <!-- Loading -->
+
+    <div *ngIf="loading" class="state-card">
+        Loading users...
+    </div>
+
+
+    <!-- User Table -->
+
+    <section class="card" *ngIf="!loading">
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>User List</h2>
+
+                <p>
+                    {{ filteredUsers.length }} user(s) found.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Username</th>
+
+                        <th>Name</th>
+
+                        <th>Email</th>
+
+                        <th>Phone</th>
+
+                        <th>Role</th>
+
+                        <th>Status</th>
+
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr *ngFor="let user of filteredUsers">
+
+                        <td class="strong">
+                            {{ user.username }}
+                        </td>
+
+                        <td>
+                            {{ user.fullName }}
+                        </td>
+
+                        <td>
+                            {{ user.email }}
+                        </td>
+
+                        <td>
+                            {{ user.phone || '—' }}
+                        </td>
+
+                        <td>
+                            {{ user.roleName }}
+                        </td>
+
+                        <td>
+
+                            <span class="status-badge" [ngClass]="
+                                    user.isActive
+                                        ? 'status-active'
+                                        : 'status-inactive'
+                                ">
+
+                                {{
+                                user.isActive
+                                ? 'Active'
+                                : 'Inactive'
+                                }}
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <div class="action-buttons">
+
+                                <a [routerLink]="[
+                                        '/users',
+                                        user.id,
+                                        'edit'
+                                    ]" class="action-link">
+                                    Edit
+                                </a>
+
+                                <button type="button" class="action-link danger" (click)="deleteUser(user)">
+                                    Delete
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr *ngIf="filteredUsers.length === 0">
+
+                        <td colspan="7" class="empty-state">
+                            No users found.
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>

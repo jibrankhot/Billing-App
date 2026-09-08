@@ -1,0 +1,182 @@
+<div class="page-container">
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+                {{ editing ? 'Edit User' : 'Create User' }}
+            </h1>
+
+            <p>
+                {{
+                editing
+                ? 'Update user account information.'
+                : 'Create a new user account.'
+                }}
+            </p>
+
+        </div>
+
+        <a routerLink="/users" class="btn btn-outline">
+            ← Back to Users
+        </a>
+
+    </div>
+
+
+    <div *ngIf="loading" class="state-card">
+        Loading user...
+    </div>
+
+
+    <form *ngIf="!loading" [formGroup]="userForm" (ngSubmit)="save()">
+
+        <section class="form-card">
+
+            <div class="card-header">
+
+                <h2>User Information</h2>
+
+            </div>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Username <span>*</span>
+                    </label>
+
+                    <input type="text" formControlName="username" placeholder="Enter username" />
+
+                    <small *ngIf="isInvalid('username')" class="validation-error">
+                        Username must contain at least 3 characters.
+                    </small>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Full Name <span>*</span>
+                    </label>
+
+                    <input type="text" formControlName="fullName" placeholder="Enter full name" />
+
+                    <small *ngIf="isInvalid('fullName')" class="validation-error">
+                        Full name is required.
+                    </small>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Email <span>*</span>
+                    </label>
+
+                    <input type="email" formControlName="email" placeholder="Enter email address" />
+
+                    <small *ngIf="isInvalid('email')" class="validation-error">
+                        Enter a valid email address.
+                    </small>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Phone
+                    </label>
+
+                    <input type="text" formControlName="phone" maxlength="10"
+                        placeholder="Enter 10 digit phone number" />
+
+                    <small *ngIf="isInvalid('phone')" class="validation-error">
+                        Phone number must contain 10 digits.
+                    </small>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Role <span>*</span>
+                    </label>
+
+                    <select formControlName="roleId">
+
+                        <option value="">
+                            Select Role
+                        </option>
+
+                        <option *ngFor="let role of roles" [value]="role.id">
+                            {{ role.name }}
+                        </option>
+
+                    </select>
+
+                    <small *ngIf="isInvalid('roleId')" class="validation-error">
+                        Please select a role.
+                    </small>
+
+                </div>
+
+
+                <div class="form-group status-group">
+
+                    <label>
+                        Status
+                    </label>
+
+                    <label class="checkbox-label">
+
+                        <input type="checkbox" formControlName="isActive" />
+
+                        <span>
+                            Active User
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <div *ngIf="errorMessage" class="error-message">
+            {{ errorMessage }}
+        </div>
+
+
+        <div class="form-actions">
+
+            <a routerLink="/users" class="btn btn-outline">
+                Cancel
+            </a>
+
+            <button type="submit" class="btn btn-primary" [disabled]="saving">
+
+                {{
+                saving
+                ? 'Saving...'
+                : editing
+                ? 'Update User'
+                : 'Create User'
+                }}
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>

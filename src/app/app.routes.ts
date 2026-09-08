@@ -693,7 +693,65 @@ export const routes: Routes = [
                     }
 
                 ]
-            }
+            },
+
+
+            // =====================================================
+            // Users
+            // =====================================================
+
+            {
+                path: 'users',
+                canActivate: [authGuard],
+
+                children: [
+
+                    // /users
+                    {
+                        path: '',
+                        loadComponent: () =>
+                            import(
+                                './features/users/pages/user-list/user-list.component'
+                            ).then(
+                                m => m.UserListComponent
+                            )
+                    },
+
+                    // /users/create
+                    {
+                        path: 'create',
+                        loadComponent: () =>
+                            import(
+                                './features/users/pages/user-form/user-form.component'
+                            ).then(
+                                m => m.UserFormComponent
+                            )
+                    },
+
+                    // /users/:id/edit
+                    {
+                        path: ':id/edit',
+                        loadComponent: () =>
+                            import(
+                                './features/users/pages/user-form/user-form.component'
+                            ).then(
+                                m => m.UserFormComponent
+                            )
+                    },
+
+                    // /users/roles
+                    {
+                        path: 'roles',
+                        loadComponent: () =>
+                            import(
+                                './features/users/pages/role-list/role-list.component'
+                            ).then(
+                                m => m.RoleListComponent
+                            )
+                    }
+
+                ]
+            },
 
         ]
     },
