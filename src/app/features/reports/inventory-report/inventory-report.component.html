@@ -112,17 +112,17 @@
                             </td>
 
                             <td class="strong">
-                                {{ product.stockQuantity }}
+                                {{ product.currentStock }}
                             </td>
 
                             <td>
-                                {{ product.reorderLevel }}
+                                {{ product.minimumStock }}
                             </td>
 
                             <td>
                                 ₹{{
                                 product.purchasePrice *
-                                product.stockQuantity
+                                product.currentStock
                                 | number:'1.2-2'
                                 }}
                             </td>

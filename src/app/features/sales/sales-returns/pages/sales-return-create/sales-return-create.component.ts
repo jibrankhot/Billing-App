@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import {
+  AbstractControl,
   FormArray,
   FormBuilder,
   FormGroup,
@@ -8,15 +9,16 @@ import {
   Validators
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+
 import { Invoice } from '../../../../../shared/models/invoice';
 import { Product } from '../../../../../shared/models/product';
-import { SalesReturnService } from '../../services/sales-return.service';
-import { InvoiceService } from '../../../invoices/services/invoice.service';
-import { ProductService } from '../../../../products/services/product.service';
 import { InvoiceItem } from '../../../../../shared/models/invoice-item';
 import { SalesReturnItem } from '../../../../../shared/models/sales-return-item';
 import { SalesReturn } from '../../../../../shared/models/sales-return';
 
+import { SalesReturnService } from '../../services/sales-return.service';
+import { InvoiceService } from '../../../invoices/services/invoice.service';
+import { ProductService } from '../../../../products/services/product.service';
 
 @Component({
   selector: 'app-sales-return-create',
@@ -89,6 +91,7 @@ export class SalesReturnCreateComponent implements OnInit {
     } else {
 
       this.addItem();
+
     }
   }
 
@@ -101,6 +104,7 @@ export class SalesReturnCreateComponent implements OnInit {
     this.invoiceService.getInvoices().subscribe({
 
       next: (invoices) => {
+
         this.invoices = invoices;
 
         const invoiceId = Number(
@@ -108,17 +112,22 @@ export class SalesReturnCreateComponent implements OnInit {
         );
 
         if (invoiceId) {
+
           this.selectedInvoice =
             this.invoices.find(
               invoice => invoice.id === invoiceId
             ) ?? null;
+
         }
       },
 
       error: () => {
+
         this.errorMessage =
           'Unable to load invoices.';
+
       }
+
     });
   }
 
@@ -127,13 +136,18 @@ export class SalesReturnCreateComponent implements OnInit {
     this.productService.getProducts().subscribe({
 
       next: (products) => {
+
         this.products = products;
+
       },
 
       error: () => {
+
         this.errorMessage =
           'Unable to load products.';
+
       }
+
     });
   }
 
@@ -188,9 +202,11 @@ export class SalesReturnCreateComponent implements OnInit {
               );
 
             });
+
           }
 
           this.loading = false;
+
         },
 
         error: () => {
@@ -203,7 +219,9 @@ export class SalesReturnCreateComponent implements OnInit {
           this.addItem();
 
           this.loading = false;
+
         }
+
       });
   }
 
@@ -249,6 +267,7 @@ export class SalesReturnCreateComponent implements OnInit {
           Validators.min(0)
         ]
       ]
+
     });
   }
 
@@ -257,6 +276,7 @@ export class SalesReturnCreateComponent implements OnInit {
     this.items.push(
       this.createItemForm()
     );
+
   }
 
   removeItem(index: number): void {
@@ -266,6 +286,7 @@ export class SalesReturnCreateComponent implements OnInit {
     }
 
     this.items.removeAt(index);
+
   }
 
   onProductChange(index: number): void {
@@ -293,10 +314,12 @@ export class SalesReturnCreateComponent implements OnInit {
       unitPrice: product.sellingPrice,
 
       taxRate: product.taxRate
+
     });
+
   }
 
-  getItemSubtotal(item: FormGroup): number {
+  getItemSubtotal(item: AbstractControl): number {
 
     const quantity = Number(
       item.get('quantity')?.value || 0
@@ -309,7 +332,7 @@ export class SalesReturnCreateComponent implements OnInit {
     return quantity * unitPrice;
   }
 
-  getItemTax(item: FormGroup): number {
+  getItemTax(item: AbstractControl): number {
 
     const subtotal =
       this.getItemSubtotal(item);
@@ -321,12 +344,13 @@ export class SalesReturnCreateComponent implements OnInit {
     return subtotal * taxRate / 100;
   }
 
-  getItemTotal(item: FormGroup): number {
+  getItemTotal(item: AbstractControl): number {
 
     return (
       this.getItemSubtotal(item) +
       this.getItemTax(item)
     );
+
   }
 
   get subtotal(): number {
@@ -334,11 +358,10 @@ export class SalesReturnCreateComponent implements OnInit {
     return this.items.controls.reduce(
       (total, item) =>
         total +
-        this.getItemSubtotal(
-          item as FormGroup
-        ),
+        this.getItemSubtotal(item),
       0
     );
+
   }
 
   get taxAmount(): number {
@@ -346,17 +369,17 @@ export class SalesReturnCreateComponent implements OnInit {
     return this.items.controls.reduce(
       (total, item) =>
         total +
-        this.getItemTax(
-          item as FormGroup
-        ),
+        this.getItemTax(item),
       0
     );
+
   }
 
   get totalAmount(): number {
 
     return this.subtotal +
       this.taxAmount;
+
   }
 
   isInvalid(controlName: string): boolean {
@@ -372,6 +395,7 @@ export class SalesReturnCreateComponent implements OnInit {
         control.touched
       )
     );
+
   }
 
   save(): void {
@@ -418,7 +442,7 @@ export class SalesReturnCreateComponent implements OnInit {
 
     const returnItems: SalesReturnItem[] =
       this.items.controls.map(
-        (item, index) => {
+        (item) => {
 
           const quantity = Number(
             item.get('quantity')?.value || 0
@@ -466,7 +490,9 @@ export class SalesReturnCreateComponent implements OnInit {
 
             totalAmount:
               subtotal + taxAmount
+
           };
+
         }
       );
 
@@ -502,6 +528,7 @@ export class SalesReturnCreateComponent implements OnInit {
 
       notes:
         formValue.notes
+
     };
 
     this.salesReturnService
@@ -519,6 +546,7 @@ export class SalesReturnCreateComponent implements OnInit {
             '/sales-returns',
             createdReturn.id
           ]);
+
         },
 
         error: () => {
@@ -527,8 +555,11 @@ export class SalesReturnCreateComponent implements OnInit {
             'Unable to create sales return.';
 
           this.saving = false;
+
         }
+
       });
+
   }
 
   cancel(): void {
@@ -536,5 +567,7 @@ export class SalesReturnCreateComponent implements OnInit {
     this.router.navigate([
       '/sales-returns'
     ]);
+
   }
+
 }

@@ -11,16 +11,16 @@
         </div>
 
         <a routerLink="/sales-returns" class="btn btn-outline">
-
             ← Back to Sales Returns
-
         </a>
 
     </div>
 
 
-    <form [formGroup]="salesReturnForm" (ngSubmit)="saveReturn()">
+    <form [formGroup]="returnForm" (ngSubmit)="save()">
 
+
+        <!-- Return Information -->
 
         <section class="form-card">
 
@@ -82,8 +82,7 @@
 
                     <label>Notes</label>
 
-                    <textarea rows="3" formControlName="notes" placeholder="Enter additional notes...">
-          </textarea>
+                    <textarea rows="3" formControlName="notes" placeholder="Enter additional notes..."></textarea>
 
                 </div>
 
@@ -92,6 +91,8 @@
         </section>
 
 
+        <!-- Returned Items -->
+
         <section class="form-card">
 
             <div class="card-header order-items-header">
@@ -99,9 +100,7 @@
                 <h2>Returned Items</h2>
 
                 <button type="button" class="btn btn-outline" (click)="addItem()">
-
                     + Add Item
-
                 </button>
 
             </div>
@@ -109,17 +108,16 @@
 
             <div class="items-container" formArrayName="items">
 
-                <div class="item-row" *ngFor="
-            let item of items.controls;
-            let i = index
-          " [formGroupName]="i">
+                <div class="item-row" *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
 
+
+                    <!-- Product -->
 
                     <div class="item-field product-field">
 
                         <label>Product</label>
 
-                        <select formControlName="productId">
+                        <select formControlName="productId" (change)="onProductChange(i)">
 
                             <option value="">
                                 Select Product
@@ -137,6 +135,8 @@
                     </div>
 
 
+                    <!-- Quantity -->
+
                     <div class="item-field">
 
                         <label>Quantity</label>
@@ -145,6 +145,8 @@
 
                     </div>
 
+
+                    <!-- Unit Price -->
 
                     <div class="item-field">
 
@@ -155,6 +157,8 @@
                     </div>
 
 
+                    <!-- Tax -->
+
                     <div class="item-field">
 
                         <label>Tax %</label>
@@ -164,24 +168,23 @@
                     </div>
 
 
+                    <!-- Total -->
+
                     <div class="item-total">
 
                         <span>Total</span>
 
                         <strong>
-                            ₹{{
-                            getItemTotal(i)
-                            | number:'1.2-2'
-                            }}
+                            ₹{{ getItemTotal(item) | number:'1.2-2' }}
                         </strong>
 
                     </div>
 
 
+                    <!-- Remove -->
+
                     <button type="button" class="remove-button" [disabled]="items.length === 1" (click)="removeItem(i)">
-
                         Remove
-
                     </button>
 
                 </div>
@@ -191,61 +194,69 @@
         </section>
 
 
+        <!-- Summary -->
+
         <section class="summary-card">
 
             <div class="summary-row">
+
                 <span>Subtotal</span>
 
                 <strong>
                     ₹{{ subtotal | number:'1.2-2' }}
                 </strong>
+
             </div>
 
+
             <div class="summary-row">
+
                 <span>Tax</span>
 
                 <strong>
                     ₹{{ taxAmount | number:'1.2-2' }}
                 </strong>
+
             </div>
 
+
             <div class="summary-row total-row">
+
                 <span>Total</span>
 
                 <strong>
                     ₹{{ totalAmount | number:'1.2-2' }}
                 </strong>
+
             </div>
 
         </section>
 
 
+        <!-- Error -->
+
         <div *ngIf="errorMessage" class="error-message">
-
             {{ errorMessage }}
-
         </div>
 
+
+        <!-- Actions -->
 
         <div class="form-actions">
 
             <a routerLink="/sales-returns" class="btn btn-outline">
-
                 Cancel
-
             </a>
 
-            <button type="submit" class="btn btn-primary" [disabled]="isSaving">
 
-                {{
-                isSaving
-                ? 'Saving...'
-                : 'Create Sales Return'
-                }}
+            <button type="submit" class="btn btn-primary" [disabled]="saving">
+
+                {{ saving ? 'Saving...' : 'Create Sales Return' }}
 
             </button>
 
         </div>
+
 
     </form>
 
