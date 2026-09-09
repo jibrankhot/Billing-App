@@ -1,0 +1,173 @@
+<div class="page-container">
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>Invoice Settings</h1>
+
+            <p>
+                Configure invoice numbering and display options.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <form [formGroup]="invoiceForm" (ngSubmit)="save()">
+
+        <section class="form-card">
+
+            <div class="card-header">
+
+                <h2>Invoice Configuration</h2>
+
+            </div>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Invoice Prefix <span>*</span>
+                    </label>
+
+                    <input type="text" formControlName="invoicePrefix" />
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Next Invoice Number <span>*</span>
+                    </label>
+
+                    <input type="number" min="1" formControlName="nextInvoiceNumber" />
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Default Payment Terms (Days) <span>*</span>
+                    </label>
+
+                    <input type="number" min="0" formControlName="paymentTerms" />
+
+                </div>
+
+
+                <div class="form-group full-width">
+
+                    <label>
+                        Default Invoice Notes
+                    </label>
+
+                    <textarea rows="4" formControlName="defaultNotes"
+                        placeholder="Enter default invoice notes"></textarea>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="form-card">
+
+            <div class="card-header">
+
+                <h2>Invoice Display</h2>
+
+            </div>
+
+
+            <div class="settings-list">
+
+                <label class="setting-row">
+
+                    <div>
+
+                        <strong>
+                            Show Company Details
+                        </strong>
+
+                        <span>
+                            Display company information on invoices.
+                        </span>
+
+                    </div>
+
+                    <input type="checkbox" formControlName="showCompanyDetails" />
+
+                </label>
+
+
+                <label class="setting-row">
+
+                    <div>
+
+                        <strong>
+                            Show Tax Details
+                        </strong>
+
+                        <span>
+                            Display tax information on invoices.
+                        </span>
+
+                    </div>
+
+                    <input type="checkbox" formControlName="showTaxDetails" />
+
+                </label>
+
+
+                <label class="setting-row">
+
+                    <div>
+
+                        <strong>
+                            Show Payment Details
+                        </strong>
+
+                        <span>
+                            Display payment information on invoices.
+                        </span>
+
+                    </div>
+
+                    <input type="checkbox" formControlName="showPaymentDetails" />
+
+                </label>
+
+            </div>
+
+        </section>
+
+
+        <div *ngIf="saved" class="success-message">
+            Invoice settings saved successfully.
+        </div>
+
+
+        <div class="form-actions">
+
+            <button type="submit" class="btn btn-primary" [disabled]="saving">
+
+                {{
+                saving
+                ? 'Saving...'
+                : 'Save Changes'
+                }}
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>

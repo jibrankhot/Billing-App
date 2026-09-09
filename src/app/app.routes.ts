@@ -753,6 +753,53 @@ export const routes: Routes = [
                 ]
             },
 
+
+            // =====================================================
+            // Settings
+            // =====================================================
+
+            {
+                path: 'settings',
+                canActivate: [authGuard],
+
+                children: [
+
+                    // /settings/company
+                    {
+                        path: 'company',
+                        loadComponent: () =>
+                            import(
+                                './features/settings/pages/company-profile/company-profile.component'
+                            ).then(
+                                m => m.CompanyProfileComponent
+                            )
+                    },
+
+                    // /settings/invoice
+                    {
+                        path: 'invoice',
+                        loadComponent: () =>
+                            import(
+                                './features/settings/pages/invoice-settings/invoice-settings.component'
+                            ).then(
+                                m => m.InvoiceSettingsComponent
+                            )
+                    },
+
+                    // /settings/tax
+                    {
+                        path: 'tax',
+                        loadComponent: () =>
+                            import(
+                                './features/settings/pages/tax-settings/tax-settings.component'
+                            ).then(
+                                m => m.TaxSettingsComponent
+                            )
+                    }
+
+                ]
+            },
+
         ]
     },
 

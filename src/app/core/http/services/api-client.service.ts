@@ -1,12 +1,14 @@
 import { Injectable, inject } from '@angular/core';
+
 import {
   HttpClient,
   HttpParams,
   HttpHeaders
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { API_CONFIG } from './api.config';
 
+import { Observable } from 'rxjs';
+
+import { API_CONFIG } from './api.config';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +23,7 @@ export class ApiClientService {
     endpoint: string,
     params?: Record<string, string | number | boolean>
   ): Observable<T> {
+
     return this.http.get<T>(
       this.buildUrl(endpoint),
       {
@@ -37,6 +40,7 @@ export class ApiClientService {
       params?: Record<string, string | number | boolean>;
     }
   ): Observable<T> {
+
     return this.http.post<T>(
       this.buildUrl(endpoint),
       body,
@@ -55,6 +59,7 @@ export class ApiClientService {
       params?: Record<string, string | number | boolean>;
     }
   ): Observable<T> {
+
     return this.http.put<T>(
       this.buildUrl(endpoint),
       body,
@@ -73,6 +78,7 @@ export class ApiClientService {
       params?: Record<string, string | number | boolean>;
     }
   ): Observable<T> {
+
     return this.http.patch<T>(
       this.buildUrl(endpoint),
       body,
@@ -87,6 +93,7 @@ export class ApiClientService {
     endpoint: string,
     params?: Record<string, string | number | boolean>
   ): Observable<T> {
+
     return this.http.delete<T>(
       this.buildUrl(endpoint),
       {
@@ -96,7 +103,9 @@ export class ApiClientService {
   }
 
   private buildUrl(endpoint: string): string {
+
     const normalizedBaseUrl = this.baseUrl.replace(/\/$/, '');
+
     const normalizedEndpoint = endpoint.replace(/^\//, '');
 
     return `${normalizedBaseUrl}/${normalizedEndpoint}`;
@@ -105,6 +114,7 @@ export class ApiClientService {
   private buildParams(
     params?: Record<string, string | number | boolean>
   ): HttpParams {
+
     let httpParams = new HttpParams();
 
     if (!params) {
