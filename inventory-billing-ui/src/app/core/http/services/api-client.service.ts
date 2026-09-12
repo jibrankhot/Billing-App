@@ -8,7 +8,7 @@ import {
 
 import { Observable } from 'rxjs';
 
-import { API_CONFIG } from './api.config';
+import { API_CONFIG } from '../api.config';
 
 @Injectable({
   providedIn: 'root'

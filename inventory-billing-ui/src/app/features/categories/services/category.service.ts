@@ -48,9 +48,9 @@ export class CategoryService {
         );
     }
 
-    deleteCategory(id: number): Observable<void> {
+    deleteCategory(id: number): Observable<boolean> {
 
-        return this.apiClient.delete<void>(
+        return this.apiClient.delete<boolean>(
             `${this.endpoint}/${id}`
         );
     }

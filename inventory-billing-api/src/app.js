@@ -6,6 +6,8 @@ const { corsOrigin } = require('./config/env');
 const authRoutes = require('./routes/auth.routes');
 const categoryRoutes = require('./routes/category.routes');
 const productRoutes = require('./routes/product.routes');
+const customerRoutes = require('./routes/customer.routes');
+const supplierRoutes = require('./routes/supplier.routes');
 
 const app = express();
 
@@ -30,5 +32,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/suppliers', supplierRoutes);
 
 module.exports = app;

@@ -43,8 +43,8 @@ export class ProductService {
         );
     }
 
-    deleteProduct(id: number): Observable<void> {
-        return this.apiClient.delete<void>(
+    deleteProduct(id: number): Observable<boolean> {
+        return this.apiClient.delete<boolean>(
             `${this.endpoint}/${id}`
         );
     }

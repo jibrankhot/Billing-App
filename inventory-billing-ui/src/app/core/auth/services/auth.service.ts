@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 
-import { ApiClientService } from '../../http/api-client.service';
+import { ApiClientService } from '../../http/services/api-client.service';
 import { StorageService } from '../../services/storage.service';
 import { TokenService } from './token.service';
 
