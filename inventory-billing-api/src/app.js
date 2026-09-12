@@ -8,6 +8,8 @@ const categoryRoutes = require('./routes/category.routes');
 const productRoutes = require('./routes/product.routes');
 const customerRoutes = require('./routes/customer.routes');
 const supplierRoutes = require('./routes/supplier.routes');
+const purchaseOrderRoutes = require('./routes/purchase-order.routes');
+const salesOrderRoutes = require('./routes/sales-order.routes');
 
 const app = express();
 
@@ -34,5 +36,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/suppliers', supplierRoutes);
+app.use('/api/purchases', purchaseOrderRoutes);
+app.use('/api/sales-orders', salesOrderRoutes);
 
 module.exports = app;
