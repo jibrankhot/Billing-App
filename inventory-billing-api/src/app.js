@@ -12,6 +12,7 @@ const purchaseOrderRoutes = require('./routes/purchase-order.routes');
 const salesOrderRoutes = require('./routes/sales-order.routes');
 const paymentRoutes = require('./routes/payment.routes');
 const salesReturnRoutes = require('./routes/sales-return.routes');
+const inventoryRoutes = require('./routes/inventory.routes');
 
 const app = express();
 
@@ -43,5 +44,6 @@ app.use('/api/purchases', purchaseOrderRoutes);
 app.use('/api/sales-orders', salesOrderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/sales-returns', salesReturnRoutes);
+app.use('/api/inventory', inventoryRoutes);
 
 module.exports = app;
