@@ -1,56 +1,63 @@
 const asyncHandler = require('../utils/async-handler');
-
 const salesReturnService = require('../services/sales-return.service');
 
 const getSalesReturns = asyncHandler(async (req, res) => {
-    const returns = await salesReturnService.getSalesReturns();
+    const salesReturns =
+        await salesReturnService.getSalesReturns();
 
-    res.status(200).json(returns);
+    res.status(200).json(salesReturns);
 });
 
 const getSalesReturnById = asyncHandler(async (req, res) => {
-    const returnRecord =
+    const salesReturn =
         await salesReturnService.getSalesReturnById(
             Number(req.params.id)
         );
 
-    res.status(200).json(returnRecord);
+    res.status(200).json(salesReturn);
 });
 
 const createSalesReturn = asyncHandler(async (req, res) => {
-    const userId = req.user?.id || req.user?.userId || null;
+    const userId =
+        req.user?.id ||
+        req.user?.userId ||
+        null;
 
-    const returnRecord =
+    const salesReturn =
         await salesReturnService.createSalesReturn(
             req.body,
+            req.body.items,
             userId
         );
 
-    res.status(201).json(returnRecord);
+    res.status(201).json(salesReturn);
 });
 
-const updateSalesReturn = asyncHandler(async (req, res) => {
-    const returnRecord =
-        await salesReturnService.updateSalesReturn(
-            Number(req.params.id),
-            req.body
-        );
+const updateSalesReturnStatus = asyncHandler(
+    async (req, res) => {
+        const salesReturn =
+            await salesReturnService.updateSalesReturnStatus(
+                Number(req.params.id),
+                req.body.status
+            );
 
-    res.status(200).json(returnRecord);
-});
+        res.status(200).json(salesReturn);
+    }
+);
 
 const deleteSalesReturn = asyncHandler(async (req, res) => {
-    await salesReturnService.deleteSalesReturn(
-        Number(req.params.id)
-    );
+    const result =
+        await salesReturnService.deleteSalesReturn(
+            Number(req.params.id)
+        );
 
-    res.status(200).json(true);
+    res.status(200).json(result);
 });
 
 module.exports = {
     getSalesReturns,
     getSalesReturnById,
     createSalesReturn,
-    updateSalesReturn,
+    updateSalesReturnStatus,
     deleteSalesReturn
 };

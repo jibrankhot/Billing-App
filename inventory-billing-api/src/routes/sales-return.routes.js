@@ -4,15 +4,17 @@ const {
     getSalesReturns,
     getSalesReturnById,
     createSalesReturn,
-    updateSalesReturn,
+    updateSalesReturnStatus,
     deleteSalesReturn
 } = require('../controllers/sales-return.controller');
-
-const { authenticate } = require('../middleware/auth.middleware');
 
 const {
     validateSalesReturn
 } = require('../validators/sales-return.validator');
+
+const {
+    authenticate
+} = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
@@ -20,12 +22,25 @@ router.use(authenticate);
 
 router.get('/', getSalesReturns);
 
-router.get('/:id', getSalesReturnById);
+router.get(
+    '/:id',
+    getSalesReturnById
+);
 
-router.post('/', validateSalesReturn, createSalesReturn);
+router.post(
+    '/',
+    validateSalesReturn,
+    createSalesReturn
+);
 
-router.put('/:id', validateSalesReturn, updateSalesReturn);
+router.patch(
+    '/:id/status',
+    updateSalesReturnStatus
+);
 
-router.delete('/:id', deleteSalesReturn);
+router.delete(
+    '/:id',
+    deleteSalesReturn
+);
 
 module.exports = router;

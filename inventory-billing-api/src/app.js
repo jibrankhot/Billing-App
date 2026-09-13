@@ -13,6 +13,10 @@ const salesOrderRoutes = require('./routes/sales-order.routes');
 const paymentRoutes = require('./routes/payment.routes');
 const salesReturnRoutes = require('./routes/sales-return.routes');
 const inventoryRoutes = require('./routes/inventory.routes');
+const reportRoutes = require('./routes/report.routes');
+const userRoutes = require('./routes/user.routes');
+const errorMiddleware = require('./middleware/error.middleware');
+const settingsRoutes = require('./routes/settings.routes');
 
 const app = express();
 
@@ -43,7 +47,14 @@ app.use('/api/suppliers', supplierRoutes);
 app.use('/api/purchases', purchaseOrderRoutes);
 app.use('/api/sales-orders', salesOrderRoutes);
 app.use('/api/payments', paymentRoutes);
-app.use('/api/sales-returns', salesReturnRoutes);
+app.use(
+    '/api/sales-returns',
+    salesReturnRoutes
+);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/users', userRoutes);
+app.use(errorMiddleware);
+app.use('/api/settings', settingsRoutes);
 
 module.exports = app;

@@ -1,34 +1,34 @@
 const validatePayment = (req, res, next) => {
     const {
-        paymentNumber,
         invoiceId,
         paymentDate,
         amount,
         paymentMethod
     } = req.body;
 
-    if (!paymentNumber || !String(paymentNumber).trim()) {
-        return res.status(422).json({
-            message: 'Payment number is required'
-        });
-    }
+    const errors = [];
 
-    if (!invoiceId || Number(invoiceId) <= 0) {
-        return res.status(422).json({
-            message: 'Valid invoice is required'
-        });
+    if (
+        invoiceId === undefined ||
+        invoiceId === null ||
+        Number.isNaN(Number(invoiceId))
+    ) {
+        errors.push('Invoice is required');
     }
 
     if (!paymentDate) {
-        return res.status(422).json({
-            message: 'Payment date is required'
-        });
+        errors.push('Payment date is required');
     }
 
-    if (Number(amount) <= 0) {
-        return res.status(422).json({
-            message: 'Payment amount must be greater than zero'
-        });
+    if (
+        amount === undefined ||
+        amount === null ||
+        Number.isNaN(Number(amount)) ||
+        Number(amount) <= 0
+    ) {
+        errors.push(
+            'Payment amount must be greater than zero'
+        );
     }
 
     const allowedMethods = [
@@ -41,11 +41,20 @@ const validatePayment = (req, res, next) => {
     ];
 
     if (
-        paymentMethod &&
-        !allowedMethods.includes(String(paymentMethod).toLowerCase())
+        !paymentMethod ||
+        !allowedMethods.includes(
+            String(paymentMethod).toLowerCase()
+        )
     ) {
+        errors.push(
+            `Payment method must be one of: ${allowedMethods.join(', ')}`
+        );
+    }
+
+    if (errors.length > 0) {
         return res.status(422).json({
-            message: 'Invalid payment method'
+            message: 'Validation failed',
+            errors
         });
     }
 
