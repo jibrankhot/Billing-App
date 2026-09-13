@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 
 const { corsOrigin } = require('./config/env');
-
+const invoiceRoutes = require('./routes/invoice.routes');
 const authRoutes = require('./routes/auth.routes');
 const categoryRoutes = require('./routes/category.routes');
 const productRoutes = require('./routes/product.routes');
@@ -10,6 +10,7 @@ const customerRoutes = require('./routes/customer.routes');
 const supplierRoutes = require('./routes/supplier.routes');
 const purchaseOrderRoutes = require('./routes/purchase-order.routes');
 const salesOrderRoutes = require('./routes/sales-order.routes');
+const paymentRoutes = require('./routes/payment.routes');
 
 const app = express();
 
@@ -32,11 +33,13 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/invoices', invoiceRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/suppliers', supplierRoutes);
 app.use('/api/purchases', purchaseOrderRoutes);
 app.use('/api/sales-orders', salesOrderRoutes);
+app.use('/api/payments', paymentRoutes);
 
 module.exports = app;
