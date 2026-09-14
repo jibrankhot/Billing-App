@@ -7,9 +7,7 @@ const {
     getInventoryReport
 } = require('../controllers/report.controller');
 
-const {
-    authenticate
-} = require('../middleware/auth.middleware');
+const { authenticate } = require('../middleware/auth.middleware');
 
 const router = express.Router();
 

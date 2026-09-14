@@ -1,6 +1,34 @@
 const supabase = require('../config/database');
 
-const getSalesReport = async (fromDate, toDate) => {
+const toNumber = (value) => Number(value || 0);
+
+const getDateRange = (query = {}) => {
+    const { dateFrom, dateTo } = query;
+
+    return {
+        dateFrom: dateFrom || null,
+        dateTo: dateTo || null
+    };
+};
+
+const applyDateRange = (query, column, dateFrom, dateTo) => {
+    let result = query;
+
+    if (dateFrom) {
+        result = result.gte(column, dateFrom);
+    }
+
+    if (dateTo) {
+        result = result.lte(column, dateTo);
+    }
+
+    return result;
+};
+
+// SALES REPORT
+const getSalesReport = async (queryParams = {}) => {
+    const { dateFrom, dateTo } = getDateRange(queryParams);
+
     let query = supabase
         .from('invoices')
         .select(`
@@ -16,116 +44,119 @@ const getSalesReport = async (fromDate, toDate) => {
         `)
         .order('invoice_date', { ascending: false });
 
-    if (fromDate) {
-        query = query.gte('invoice_date', fromDate);
-    }
+    query = applyDateRange(
+        query,
+        'invoice_date',
+        dateFrom,
+        dateTo
+    );
 
-    if (toDate) {
-        query = query.lte('invoice_date', toDate);
-    }
-
-    const { data: invoices, error } = await query;
+    const { data, error } = await query;
 
     if (error) throw error;
 
-    const invoiceList = invoices || [];
-
-    const totalSales = invoiceList.reduce(
-        (total, invoice) =>
-            total + Number(invoice.total_amount || 0),
-        0
-    );
-
-    const totalTax = invoiceList.reduce(
-        (total, invoice) =>
-            total + Number(invoice.tax_amount || 0),
-        0
-    );
-
-    const totalDiscount = invoiceList.reduce(
-        (total, invoice) =>
-            total + Number(invoice.discount_amount || 0),
-        0
-    );
+    const invoices = data || [];
 
     return {
-        invoices: invoiceList.map(invoice => ({
-            id: invoice.id,
-            invoiceNumber: invoice.invoice_number,
-            invoiceDate: invoice.invoice_date,
-            customerId: invoice.customer_id,
-            subtotal: Number(invoice.subtotal || 0),
-            taxAmount: Number(invoice.tax_amount || 0),
-            discountAmount: Number(invoice.discount_amount || 0),
-            totalAmount: Number(invoice.total_amount || 0),
-            status: invoice.status
-        })),
-        totalInvoices: invoiceList.length,
-        totalSales,
-        totalTax,
-        totalDiscount
+        dateFrom,
+        dateTo,
+        invoiceCount: invoices.length,
+        subtotal: invoices.reduce(
+            (sum, item) => sum + toNumber(item.subtotal),
+            0
+        ),
+        taxAmount: invoices.reduce(
+            (sum, item) => sum + toNumber(item.tax_amount),
+            0
+        ),
+        discountAmount: invoices.reduce(
+            (sum, item) => sum + toNumber(item.discount_amount),
+            0
+        ),
+        totalAmount: invoices.reduce(
+            (sum, item) => sum + toNumber(item.total_amount),
+            0
+        ),
+        invoices: invoices.map(item => ({
+            id: item.id,
+            invoiceNumber: item.invoice_number,
+            invoiceDate: item.invoice_date,
+            customerId: item.customer_id,
+            subtotal: toNumber(item.subtotal),
+            taxAmount: toNumber(item.tax_amount),
+            discountAmount: toNumber(item.discount_amount),
+            totalAmount: toNumber(item.total_amount),
+            status: item.status
+        }))
     };
 };
 
-const getPurchaseReport = async (fromDate, toDate) => {
+// PURCHASE REPORT
+const getPurchaseReport = async (queryParams = {}) => {
+    const { dateFrom, dateTo } = getDateRange(queryParams);
+
     let query = supabase
         .from('purchase_orders')
         .select(`
             id,
             order_number,
-            order_date,
             supplier_id,
+            order_date,
+            expected_date,
+            status,
             subtotal,
             tax_amount,
-            total_amount,
-            status
+            total_amount
         `)
         .order('order_date', { ascending: false });
 
-    if (fromDate) {
-        query = query.gte('order_date', fromDate);
-    }
+    query = applyDateRange(
+        query,
+        'order_date',
+        dateFrom,
+        dateTo
+    );
 
-    if (toDate) {
-        query = query.lte('order_date', toDate);
-    }
-
-    const { data: orders, error } = await query;
+    const { data, error } = await query;
 
     if (error) throw error;
 
-    const orderList = orders || [];
-
-    const totalPurchases = orderList.reduce(
-        (total, order) =>
-            total + Number(order.total_amount || 0),
-        0
-    );
-
-    const totalTax = orderList.reduce(
-        (total, order) =>
-            total + Number(order.tax_amount || 0),
-        0
-    );
+    const orders = data || [];
 
     return {
-        orders: orderList.map(order => ({
-            id: order.id,
-            orderNumber: order.order_number,
-            orderDate: order.order_date,
-            supplierId: order.supplier_id,
-            subtotal: Number(order.subtotal || 0),
-            taxAmount: Number(order.tax_amount || 0),
-            totalAmount: Number(order.total_amount || 0),
-            status: order.status
-        })),
-        totalOrders: orderList.length,
-        totalPurchases,
-        totalTax
+        dateFrom,
+        dateTo,
+        orderCount: orders.length,
+        subtotal: orders.reduce(
+            (sum, item) => sum + toNumber(item.subtotal),
+            0
+        ),
+        taxAmount: orders.reduce(
+            (sum, item) => sum + toNumber(item.tax_amount),
+            0
+        ),
+        totalAmount: orders.reduce(
+            (sum, item) => sum + toNumber(item.total_amount),
+            0
+        ),
+        orders: orders.map(item => ({
+            id: item.id,
+            orderNumber: item.order_number,
+            supplierId: item.supplier_id,
+            orderDate: item.order_date,
+            expectedDate: item.expected_date,
+            status: item.status,
+            subtotal: toNumber(item.subtotal),
+            taxAmount: toNumber(item.tax_amount),
+            totalAmount: toNumber(item.total_amount)
+        }))
     };
 };
 
-const getPaymentReport = async (fromDate, toDate) => {
+// PAYMENT REPORT
+const getPaymentReport = async (queryParams = {}) => {
+    const { dateFrom, dateTo } = getDateRange(queryParams);
+
     let query = supabase
         .from('payments')
         .select(`
@@ -134,46 +165,58 @@ const getPaymentReport = async (fromDate, toDate) => {
             payment_date,
             amount,
             payment_method,
-            reference_number
+            reference_number,
+            notes
         `)
         .order('payment_date', { ascending: false });
 
-    if (fromDate) {
-        query = query.gte('payment_date', fromDate);
-    }
+    query = applyDateRange(
+        query,
+        'payment_date',
+        dateFrom,
+        dateTo
+    );
 
-    if (toDate) {
-        query = query.lte('payment_date', toDate);
-    }
-
-    const { data: payments, error } = await query;
+    const { data, error } = await query;
 
     if (error) throw error;
 
-    const paymentList = payments || [];
+    const payments = data || [];
 
-    const totalPayments = paymentList.reduce(
-        (total, payment) =>
-            total + Number(payment.amount || 0),
-        0
-    );
+    const byMethod = {};
+
+    payments.forEach(payment => {
+        const method = payment.payment_method || 'other';
+
+        byMethod[method] =
+            (byMethod[method] || 0) +
+            toNumber(payment.amount);
+    });
 
     return {
-        payments: paymentList.map(payment => ({
-            id: payment.id,
-            invoiceId: payment.invoice_id,
-            paymentDate: payment.payment_date,
-            amount: Number(payment.amount || 0),
-            paymentMethod: payment.payment_method,
-            referenceNumber: payment.reference_number
-        })),
-        totalPayments,
-        totalTransactions: paymentList.length
+        dateFrom,
+        dateTo,
+        paymentCount: payments.length,
+        totalAmount: payments.reduce(
+            (sum, item) => sum + toNumber(item.amount),
+            0
+        ),
+        byMethod,
+        payments: payments.map(item => ({
+            id: item.id,
+            invoiceId: item.invoice_id,
+            paymentDate: item.payment_date,
+            amount: toNumber(item.amount),
+            paymentMethod: item.payment_method,
+            referenceNumber: item.reference_number,
+            notes: item.notes
+        }))
     };
 };
 
+// INVENTORY REPORT
 const getInventoryReport = async () => {
-    const { data: products, error } = await supabase
+    const { data, error } = await supabase
         .from('products')
         .select(`
             id,
@@ -183,61 +226,70 @@ const getInventoryReport = async () => {
             unit,
             purchase_price,
             selling_price,
-            tax_rate,
             current_stock,
             minimum_stock,
             is_active
         `)
-        .order('name');
+        .order('name', { ascending: true });
 
     if (error) throw error;
 
-    const productList = products || [];
+    const products = data || [];
 
-    const totalStock = productList.reduce(
-        (total, product) =>
-            total + Number(product.current_stock || 0),
+    const totalStock = products.reduce(
+        (sum, item) => sum + toNumber(item.current_stock),
         0
     );
 
-    const inventoryValue = productList.reduce(
-        (total, product) =>
-            total +
-            Number(product.current_stock || 0) *
-            Number(product.purchase_price || 0),
+    const inventoryValue = products.reduce(
+        (sum, item) =>
+            sum +
+            toNumber(item.current_stock) *
+            toNumber(item.purchase_price),
         0
     );
 
-    const lowStockProducts = productList.filter(
-        product =>
-            Number(product.current_stock || 0) <=
-            Number(product.minimum_stock || 0)
+    const lowStockProducts = products.filter(
+        item =>
+            toNumber(item.current_stock) <=
+            toNumber(item.minimum_stock)
     );
 
-    const outOfStockProducts = productList.filter(
-        product =>
-            Number(product.current_stock || 0) <= 0
+    const outOfStockProducts = products.filter(
+        item => toNumber(item.current_stock) <= 0
     );
 
     return {
-        products: productList.map(product => ({
-            id: product.id,
-            sku: product.sku,
-            name: product.name,
-            categoryId: product.category_id,
-            unit: product.unit,
-            purchasePrice: Number(product.purchase_price || 0),
-            sellingPrice: Number(product.selling_price || 0),
-            taxRate: Number(product.tax_rate || 0),
-            currentStock: Number(product.current_stock || 0),
-            minimumStock: Number(product.minimum_stock || 0),
-            isActive: product.is_active
-        })),
-        totalProducts: productList.length,
+        totalProducts: products.length,
         totalStock,
-        inventoryValue,
         lowStockCount: lowStockProducts.length,
-        outOfStockCount: outOfStockProducts.length
+        outOfStockCount: outOfStockProducts.length,
+        inventoryValue,
+        products: products.map(item => ({
+            id: item.id,
+            sku: item.sku,
+            name: item.name,
+            categoryId: item.category_id,
+            unit: item.unit,
+            purchasePrice: toNumber(item.purchase_price),
+            sellingPrice: toNumber(item.selling_price),
+            currentStock: toNumber(item.current_stock),
+            minimumStock: toNumber(item.minimum_stock),
+            isActive: item.is_active
+        })),
+        lowStockProducts: lowStockProducts.map(item => ({
+            id: item.id,
+            sku: item.sku,
+            name: item.name,
+            currentStock: toNumber(item.current_stock),
+            minimumStock: toNumber(item.minimum_stock)
+        })),
+        outOfStockProducts: outOfStockProducts.map(item => ({
+            id: item.id,
+            sku: item.sku,
+            name: item.name,
+            currentStock: toNumber(item.current_stock)
+        }))
     };
 };
 

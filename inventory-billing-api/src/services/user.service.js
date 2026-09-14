@@ -1,34 +1,37 @@
 const bcrypt = require('bcryptjs');
 const supabase = require('../config/database');
 
+
 const mapUser = (user, role = null) => ({
     id: user.id,
+    roleId: user.role_id,
+    roleName: role?.name || null,
     username: user.username,
     fullName: user.full_name,
     email: user.email,
     phone: user.phone,
-    roleId: user.role_id,
-    roleName: role?.name || '',
     isActive: user.is_active,
-    lastLoginAt: user.last_login_at,
     createdAt: user.created_at,
     updatedAt: user.updated_at
 });
 
-const getRoleById = async (roleId) => {
+
+const getRole = async (roleId) => {
     if (!roleId) {
         return null;
     }
 
     const { data, error } = await supabase
         .from('roles')
-        .select('id, name')
+        .select('id, name, description')
         .eq('id', roleId)
         .single();
 
     if (error) {
         if (error.code === 'PGRST116') {
-            return null;
+            const err = new Error('Role not found');
+            err.statusCode = 404;
+            throw err;
         }
 
         throw error;
@@ -37,73 +40,88 @@ const getRoleById = async (roleId) => {
     return data;
 };
 
+
+const getRoles = async () => {
+    const { data, error } = await supabase
+        .from('roles')
+        .select('id, name, description')
+        .order('name');
+
+    if (error) {
+        throw error;
+    }
+
+    return data || [];
+};
+
+
 const getUsers = async () => {
     const { data, error } = await supabase
         .from('users')
         .select(`
             id,
+            role_id,
             username,
             full_name,
             email,
             phone,
-            role_id,
             is_active,
-            last_login_at,
             created_at,
             updated_at
         `)
-        .order('full_name');
+        .order('id');
 
-    if (error) throw error;
+    if (error) {
+        throw error;
+    }
 
     const users = data || [];
+
+    if (users.length === 0) {
+        return [];
+    }
 
     const roleIds = [
         ...new Set(
             users
                 .map(user => user.role_id)
-                .filter(Boolean)
+                .filter(roleId => roleId !== null && roleId !== undefined)
         )
     ];
 
     let roles = [];
 
     if (roleIds.length > 0) {
-        const { data: roleData, error: roleError } =
-            await supabase
-                .from('roles')
-                .select('id, name')
-                .in('id', roleIds);
+        const { data: roleData, error: roleError } = await supabase
+            .from('roles')
+            .select('id, name, description')
+            .in('id', roleIds);
 
-        if (roleError) throw roleError;
+        if (roleError) {
+            throw roleError;
+        }
 
         roles = roleData || [];
     }
 
-    const roleMap = new Map(
-        roles.map(role => [role.id, role])
-    );
-
-    return users.map(user =>
-        mapUser(
-            user,
-            roleMap.get(user.role_id)
-        )
-    );
+    return users.map(user => {
+        const role = roles.find(item => item.id === user.role_id);
+        return mapUser(user, role);
+    });
 };
+
 
 const getUserById = async (id) => {
     const { data, error } = await supabase
         .from('users')
         .select(`
             id,
+            role_id,
             username,
             full_name,
             email,
             phone,
-            role_id,
             is_active,
-            last_login_at,
             created_at,
             updated_at
         `)
@@ -120,56 +138,50 @@ const getUserById = async (id) => {
         throw error;
     }
 
-    const role = await getRoleById(
-        data.role_id
-    );
+    const role = await getRole(data.role_id);
 
     return mapUser(data, role);
 };
 
+
 const createUser = async (userData) => {
-    if (!userData.password) {
-        const err = new Error(
-            'Password is required when creating a user'
-        );
-        err.statusCode = 422;
-        throw err;
+    const {
+        username,
+        password,
+        fullName,
+        email,
+        phone,
+        roleId,
+        isActive = true
+    } = userData;
+
+    let role = null;
+
+    if (roleId) {
+        role = await getRole(Number(roleId));
     }
 
-    const passwordHash = await bcrypt.hash(
-        String(userData.password),
-        10
-    );
-
-    const payload = {
-        username: String(userData.username).trim(),
-        full_name: String(userData.fullName).trim(),
-        email: String(userData.email).trim().toLowerCase(),
-        phone: userData.phone || null,
-        password_hash: passwordHash,
-        role_id:
-            userData.roleId !== undefined &&
-            userData.roleId !== null
-                ? Number(userData.roleId)
-                : null,
-        is_active:
-            userData.isActive !== undefined
-                ? Boolean(userData.isActive)
-                : true
-    };
+    const passwordHash = await bcrypt.hash(password, 10);
 
     const { data, error } = await supabase
         .from('users')
-        .insert(payload)
+        .insert({
+            username: username.trim(),
+            password_hash: passwordHash,
+            full_name: fullName.trim(),
+            email: email?.trim() || null,
+            phone: phone?.trim() || null,
+            role_id: roleId ? Number(roleId) : null,
+            is_active: isActive
+        })
         .select(`
             id,
+            role_id,
             username,
             full_name,
             email,
             phone,
-            role_id,
             is_active,
-            last_login_at,
             created_at,
             updated_at
         `)
@@ -177,95 +189,74 @@ const createUser = async (userData) => {
 
     if (error) {
         if (error.code === '23505') {
-            const err = new Error(
-                'Username or email already exists'
-            );
+            const err = new Error('Username already exists');
             err.statusCode = 409;
             throw err;
         }
 
         if (error.code === '23503') {
-            const err = new Error(
-                'Invalid role'
-            );
-            err.statusCode = 400;
+            const err = new Error('Invalid role');
+            err.statusCode = 409;
             throw err;
         }
 
         throw error;
     }
 
-    const role = await getRoleById(
-        data.role_id
-    );
-
     return mapUser(data, role);
 };
 
-const updateUser = async (id, userData) => {
-    await getUserById(id);
 
-    const payload = {};
+const updateUser = async (id, userData) => {
+    const existingUser = await getUserById(id);
+
+    const updateData = {};
 
     if (userData.username !== undefined) {
-        payload.username =
-            String(userData.username).trim();
+        updateData.username = userData.username.trim();
     }
 
     if (userData.fullName !== undefined) {
-        payload.full_name =
-            String(userData.fullName).trim();
+        updateData.full_name = userData.fullName.trim();
     }
 
     if (userData.email !== undefined) {
-        payload.email =
-            String(userData.email)
-                .trim()
-                .toLowerCase();
+        updateData.email = userData.email?.trim() || null;
     }
 
     if (userData.phone !== undefined) {
-        payload.phone =
-            userData.phone || null;
+        updateData.phone = userData.phone?.trim() || null;
     }
 
     if (userData.roleId !== undefined) {
-        payload.role_id =
-            userData.roleId === null
-                ? null
-                : Number(userData.roleId);
+        const role = await getRole(Number(userData.roleId));
+        updateData.role_id = role.id;
     }
 
     if (userData.isActive !== undefined) {
-        payload.is_active =
-            Boolean(userData.isActive);
+        updateData.is_active = userData.isActive;
     }
 
-    if (userData.password) {
-        payload.password_hash =
-            await bcrypt.hash(
-                String(userData.password),
-                10
-            );
+    if (userData.password !== undefined) {
+        updateData.password_hash = await bcrypt.hash(userData.password, 10);
     }
 
-    if (Object.keys(payload).length === 0) {
-        return getUserById(id);
+    if (Object.keys(updateData).length === 0) {
+        return existingUser;
     }
 
     const { data, error } = await supabase
         .from('users')
-        .update(payload)
+        .update(updateData)
         .eq('id', id)
         .select(`
             id,
+            role_id,
             username,
             full_name,
             email,
             phone,
-            role_id,
             is_active,
-            last_login_at,
             created_at,
             updated_at
         `)
@@ -273,30 +264,25 @@ const updateUser = async (id, userData) => {
 
     if (error) {
         if (error.code === '23505') {
-            const err = new Error(
-                'Username or email already exists'
-            );
+            const err = new Error('Username already exists');
             err.statusCode = 409;
             throw err;
         }
 
         if (error.code === '23503') {
-            const err = new Error(
-                'Invalid role'
-            );
-            err.statusCode = 400;
+            const err = new Error('Invalid role');
+            err.statusCode = 409;
             throw err;
         }
 
         throw error;
     }
 
-    const role = await getRoleById(
-        data.role_id
-    );
+    const role = await getRole(data.role_id);
 
     return mapUser(data, role);
 };
+
 
 const deleteUser = async (id) => {
     await getUserById(id);
@@ -308,9 +294,7 @@ const deleteUser = async (id) => {
 
     if (error) {
         if (error.code === '23503') {
-            const err = new Error(
-                'User cannot be deleted because it is referenced by other records'
-            );
+            const err = new Error('User cannot be deleted because it is referenced by other records');
             err.statusCode = 409;
             throw err;
         }
@@ -318,15 +302,14 @@ const deleteUser = async (id) => {
         throw error;
     }
 
-    return {
-        success: true,
-        id
-    };
+    return true;
 };
+
 
 module.exports = {
     getUsers,
     getUserById,
+    getRoles,
     createUser,
     updateUser,
     deleteUser
