@@ -3,10 +3,7 @@ import { AuthUser } from './auth-user';
 export interface LoginResponse {
     success: boolean;
     message: string;
-    data: {
-        token: string;
-        user: BackendAuthUser;
-    };
+    data: { token: string; user: BackendAuthUser; };
 }
 
 export interface BackendAuthUser {
@@ -17,9 +14,5 @@ export interface BackendAuthUser {
     phone: string | null;
     role_id: number | null;
     is_active: boolean;
-    roles: {
-        id: number;
-        name: string;
-        description: string | null;
-    } | null;
+    roles: { id: number; name: string; description: string | null; } | null;
 }
